@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\AnecdoteRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -53,9 +55,26 @@ class Anecdote
      */
     private $updatedAt;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="favorite")
+     */
+    private $favoriteUsers;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="anecdotes")
+     */
+    private $writer;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="anecdotes")
+     */
+    private $category;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+        $this->favoriteUsers = new ArrayCollection();
+        $this->category = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +162,69 @@ class Anecdote
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getFavoriteUsers(): Collection
+    {
+        return $this->favoriteUsers;
+    }
+
+    public function addFavoriteUser(User $favoriteUser): self
+    {
+        if (!$this->favoriteUsers->contains($favoriteUser)) {
+            $this->favoriteUsers[] = $favoriteUser;
+            $favoriteUser->addFavorite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoriteUser(User $favoriteUser): self
+    {
+        if ($this->favoriteUsers->removeElement($favoriteUser)) {
+            $favoriteUser->removeFavorite($this);
+        }
+
+        return $this;
+    }
+
+    public function getWriter(): ?User
+    {
+        return $this->writer;
+    }
+
+    public function setWriter(?User $writer): self
+    {
+        $this->writer = $writer;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Category[]
+     */
+    public function getCategory(): Collection
+    {
+        return $this->category;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->category->contains($category)) {
+            $this->category[] = $category;
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        $this->category->removeElement($category);
 
         return $this;
     }

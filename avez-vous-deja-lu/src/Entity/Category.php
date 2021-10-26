@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,9 +45,15 @@ class Category
      */
     private $updatedAt;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, mappedBy="category")
+     */
+    private $anecdotes;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+        $this->anecdotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,6 +117,33 @@ class Category
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getAnecdotes(): Collection
+    {
+        return $this->anecdotes;
+    }
+
+    public function addAnecdote(Anecdote $anecdote): self
+    {
+        if (!$this->anecdotes->contains($anecdote)) {
+            $this->anecdotes[] = $anecdote;
+            $anecdote->addCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnecdote(Anecdote $anecdote): self
+    {
+        if ($this->anecdotes->removeElement($anecdote)) {
+            $anecdote->removeCategory($this);
+        }
 
         return $this;
     }

@@ -50,9 +50,22 @@ class User
      */
     private $updatedAt;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
+     */
+    private $favorite;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Anecdote::class, mappedBy="writer")
+     */
+    private $anecdotes;
+
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+        $this->favorite = new ArrayCollection();
+        $this->anecdotes = new ArrayCollection();
 
     }
 
@@ -132,4 +145,59 @@ class User
 
         return $this;
     }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getFavorite(): Collection
+    {
+        return $this->favorite;
+    }
+
+    public function addFavorite(Anecdote $favorite): self
+    {
+        if (!$this->favorite->contains($favorite)) {
+            $this->favorite[] = $favorite;
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Anecdote $favorite): self
+    {
+        $this->favorite->removeElement($favorite);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getAnecdotes(): Collection
+    {
+        return $this->anecdotes;
+    }
+
+    public function addAnecdote(Anecdote $anecdote): self
+    {
+        if (!$this->anecdotes->contains($anecdote)) {
+            $this->anecdotes[] = $anecdote;
+            $anecdote->setWriter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnecdote(Anecdote $anecdote): self
+    {
+        if ($this->anecdotes->removeElement($anecdote)) {
+            // set the owning side to null (unless already changed)
+            if ($anecdote->getWriter() === $this) {
+                $anecdote->setWriter(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
