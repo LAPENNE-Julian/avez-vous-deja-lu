@@ -66,6 +66,26 @@ class Anecdote
     private $writer;
 
     /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="upVote")
+     */
+    private $upVoteUsers;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="downVote")
+     */
+    private $downVoteUsers;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="known")
+     */
+    private $knownUsers;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="unknown")
+     */
+    private $unknownUsers;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="anecdotes")
      */
     private $category;
@@ -74,6 +94,10 @@ class Anecdote
     {
         $this->createdAt = new DateTimeImmutable();
         $this->favoriteUsers = new ArrayCollection();
+        $this->upVoteUsers = new ArrayCollection();
+        $this->downVoteUsers = new ArrayCollection();
+        $this->knownUsers = new ArrayCollection();
+        $this->unknownUsers = new ArrayCollection();
         $this->category = new ArrayCollection();
     }
 
@@ -201,6 +225,114 @@ class Anecdote
     public function setWriter(?User $writer): self
     {
         $this->writer = $writer;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUpVoteUsers(): Collection
+    {
+        return $this->upVoteUsers;
+    }
+
+    public function addUpVoteUser(User $upVoteUser): self
+    {
+        if (!$this->upVoteUsers->contains($upVoteUser)) {
+            $this->upVoteUsers[] = $upVoteUser;
+            $upVoteUser->addUpVote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUpVoteUser(User $upVoteUser): self
+    {
+        if ($this->upVoteUsers->removeElement($upVoteUser)) {
+            $upVoteUser->removeUpVote($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getDownVoteUsers(): Collection
+    {
+        return $this->downVoteUsers;
+    }
+
+    public function addDownVoteUser(User $downVoteUser): self
+    {
+        if (!$this->downVoteUsers->contains($downVoteUser)) {
+            $this->downVoteUsers[] = $downVoteUser;
+            $downVoteUser->addDownVote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDownVoteUser(User $downVoteUser): self
+    {
+        if ($this->downVoteUsers->removeElement($downVoteUser)) {
+            $downVoteUser->removeDownVote($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getKnownUsers(): Collection
+    {
+        return $this->knownUsers;
+    }
+
+    public function addKnownUser(User $knownUser): self
+    {
+        if (!$this->knownUsers->contains($knownUser)) {
+            $this->knownUsers[] = $knownUser;
+            $knownUser->addKnown($this);
+        }
+
+        return $this;
+    }
+
+    public function removeKnownUser(User $knownUser): self
+    {
+        if ($this->knownUsers->removeElement($knownUser)) {
+            $knownUser->removeKnown($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUnknownUsers(): Collection
+    {
+        return $this->unknownUsers;
+    }
+
+    public function addUnknownUser(User $unknownUser): self
+    {
+        if (!$this->unknownUsers->contains($unknownUser)) {
+            $this->unknownUsers[] = $unknownUser;
+            $unknownUser->addUnknown($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUnknownUser(User $unknownUser): self
+    {
+        if ($this->unknownUsers->removeElement($unknownUser)) {
+            $unknownUser->removeUnknown($this);
+        }
 
         return $this;
     }

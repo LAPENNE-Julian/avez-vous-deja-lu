@@ -52,6 +52,7 @@ class User
 
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
+     * @ORM\JoinTable(name="favorite")
      */
     private $favorite;
 
@@ -60,12 +61,39 @@ class User
      */
     private $anecdotes;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="upVoteUsers")
+     * @ORM\JoinTable(name="upVote")
+     */
+    private $upVote;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="downVoteUsers")
+     * @ORM\JoinTable(name="downVote")
+     */
+    private $downVote;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="knownUsers")
+     * @ORM\JoinTable(name="known")
+     */
+    private $known;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="unknownUsers")
+     * @ORM\JoinTable(name="unknown")
+     */
+    private $unknown;
 
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
         $this->favorite = new ArrayCollection();
         $this->anecdotes = new ArrayCollection();
+        $this->upVote = new ArrayCollection();
+        $this->downVote = new ArrayCollection();
+        $this->known = new ArrayCollection();
+        $this->unknown = new ArrayCollection();
 
     }
 
@@ -200,4 +228,99 @@ class User
         return $this;
     }
 
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getUpVote(): Collection
+    {
+        return $this->upVote;
+    }
+
+    public function addUpVote(Anecdote $upVote): self
+    {
+        if (!$this->upVote->contains($upVote)) {
+            $this->upVote[] = $upVote;
+        }
+
+        return $this;
+    }
+
+    public function removeUpVote(Anecdote $upVote): self
+    {
+        $this->upVote->removeElement($upVote);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getDownVote(): Collection
+    {
+        return $this->downVote;
+    }
+
+    public function addDownVote(Anecdote $downVote): self
+    {
+        if (!$this->downVote->contains($downVote)) {
+            $this->downVote[] = $downVote;
+        }
+
+        return $this;
+    }
+
+    public function removeDownVote(Anecdote $downVote): self
+    {
+        $this->downVote->removeElement($downVote);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getKnown(): Collection
+    {
+        return $this->known;
+    }
+
+    public function addKnown(Anecdote $known): self
+    {
+        if (!$this->known->contains($known)) {
+            $this->known[] = $known;
+        }
+
+        return $this;
+    }
+
+    public function removeKnown(Anecdote $known): self
+    {
+        $this->known->removeElement($known);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getUnknown(): Collection
+    {
+        return $this->unknown;
+    }
+
+    public function addUnknown(Anecdote $unknown): self
+    {
+        if (!$this->unknown->contains($unknown)) {
+            $this->unknown[] = $unknown;
+        }
+
+        return $this;
+    }
+
+    public function removeUnknown(Anecdote $unknown): self
+    {
+        $this->unknown->removeElement($unknown);
+
+        return $this;
+    }
 }
