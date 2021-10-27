@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {# {% if page == 'add' %} #}
+    {# New Anecdote #}
+    {# {% else %} #}
+    Anecdote {{ anecdote.title }}
+    {# {% endif %} #}
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  {{ include('_partials/_nav.html.twig') }}
+
+  {{ include('_partials/_flash_messages.html.twig') }}
+
+  <h1> 
+      {# {% if app.request.get('_route') == 'add' %} #}
+          {# New anecdote #}
+      {# {% else %} #}
+          Update {{ anecdote.title }}
+      {# {% endif %} #}
+  </h1>
+
+  <div class="text-end">
+  <a href="{{url('backoffice_anecdote_browse')}}" class="btn btn-primary">Back to list</a>
+  </div>
+  
+
+  <!--novalidate disable the html validation-->
+  {{ form_start(anecdote_form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    {{ form_errors(anecdote_form) }}
+    
+    {{ form_row(anecdote_form.title) }}
+    {{ form_row(anecdote_form.description) }}
+    {{ form_row(anecdote_form.content) }}
+    {{ form_row(anecdote_form.source) }}
+    {{ form_row(anecdote_form.img) }}
+    {{ form_row(anecdote_form.category)}}
+
+    <button type="submit" class="btn btn-primary mt-4">
+    {% if 'backoffice_anecdote_add' == app.request.get('_route') %}
+    Create
+    {% else %}
+    Update
+    {% endif %}
+    </button>
+
+  {{ form_end(anecdote_form) }} 
+
+</div>
+{% endblock %}
