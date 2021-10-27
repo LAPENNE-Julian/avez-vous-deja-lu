@@ -25,7 +25,7 @@ class AnecdoteController extends AbstractController
     {
         // transfert informations to the view
         return $this->render('anecdote/browse.html.twig', [
-            'anecdote_list' => $anecdoteRepository->findAll()
+            'anecdote_list' => $anecdoteRepository->findAll(),
         ]);
     }
 
@@ -67,7 +67,7 @@ class AnecdoteController extends AbstractController
         }
 
         // Transfert the form to the view
-        return $this->render('anecdote/edit.html.twig', [
+        return $this->render('anecdote/add.edit.html.twig', [
             'anecdote_form' => $anecdoteForm->createView(),
             'anecdote' => $anecdote,
         ]);
@@ -104,9 +104,8 @@ class AnecdoteController extends AbstractController
         }
 
         // Transfert the form to the view
-        return $this->render('anecdote/add.html.twig', [
+        return $this->render('anecdote/add.edit.html.twig', [
             'anecdote_form' => $anecdoteForm->createView(),
-            'page' => 'create',
         ]);
     }
 
