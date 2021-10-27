@@ -2,19 +2,26 @@
 
 namespace App\Controller;
 
+use App\Repository\CategoryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/backoffice/category", name="backoffice_category_")
+ */
 class CategoryController extends AbstractController
 {
     /**
-     * @Route("/category", name="category")
+     * function which list categories
+     * 
+     * @Route("/", name="browse")
      */
-    public function index(): Response
+    public function browse(CategoryRepository $categoryRepository): Response
     {
-        return $this->render('category/index.html.twig', [
-            'controller_name' => 'CategoryController',
+        // transfert informations to the view
+        return $this->render('category/browse.html.twig', [
+            'category_list' => $categoryRepository->findAll(),
         ]);
     }
 }

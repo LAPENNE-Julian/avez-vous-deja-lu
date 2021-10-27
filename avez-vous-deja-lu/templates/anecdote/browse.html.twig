@@ -19,10 +19,11 @@
     </tr>
   </thead>
   <tbody>
+  {% for anecdote in anecdote_list %}
     <tr>
-      <th scope="row">anecdoteId</th>
-      <td>AnecdoteTitle</td>
-      <td>user</td>
+      <th scope="row">{{anecdote.id}}</th>
+      <td>{{anecdote.title}}</td>
+      <td>{{anecdote.writer.pseudo}}</td>
       <td>
         <a class="btn btn-success" href="#" title="Read" alt="Read">
           {# images récupérées sur bootstrap icons https://icons.getbootstrap.com/ #}
@@ -49,6 +50,7 @@
         </div>
       </td>
     </tr>
+    {% endfor %}
   </tbody>
 </table>
 </div>

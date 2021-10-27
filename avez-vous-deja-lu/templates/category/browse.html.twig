@@ -6,7 +6,7 @@
 <div class="container">
 {{ include('_partials/_nav.html.twig') }}
 
-<h1>Users list</h1>
+<h1>Categories list</h1>
 <div class="text-end">
 </a>
 </div>
@@ -14,15 +14,14 @@
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Pseudo</th>
-      <th scope="col">Email</th>
+      <th scope="col">Name</th>
     </tr>
   </thead>
   <tbody>
+  {% for category in category_list %}
     <tr>
-      <th scope="row">UserId</th>
-      <td>userPseudo</td>
-      <td>userEmail</td>
+      <th scope="row">{{category.id}}</th>
+      <td>{{category.name}}</td>
       <td>
         <a class="btn btn-success" href="#" title="Read" alt="Read">
           {# images récupérées sur bootstrap icons https://icons.getbootstrap.com/ #}
@@ -49,6 +48,7 @@
         </div>
       </td>
     </tr>
+    {% endfor %}
   </tbody>
 </table>
 </div>

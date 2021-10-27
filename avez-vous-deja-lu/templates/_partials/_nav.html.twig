@@ -11,21 +11,21 @@
           {% if app.request.get('_route') == 'anecdote' %}
           class="nav-link active" aria-current="page" 
           {% else %}
-          class="nav-link"  href="{{ url('anecdote') }}"
+          class="nav-link"  href="{{ url('backoffice_anecdote_browse') }}"
           {% endif %}>Anecdotes</a>
         </li>
         <li class="nav-item">
           <a {% if app.request.get('_route') == 'category' %}
           class="nav-link active" aria-current="page" 
           {% else %}
-          class="nav-link"  href="{{ url('category') }}"
+          class="nav-link"  href="{{ url('backoffice_category_browse') }}"
           {% endif %}>Categories</a>
         </li>
         <li class="nav-item">
           <a {% if app.request.get('_route') == 'user' %}
           class="nav-link active" aria-current="page" 
           {% else %}
-          class="nav-link"  href="{{ url('user') }}"
+          class="nav-link"  href="{{ url('backoffice_user_browse') }}"
           {% endif %}>Users</a>
         </li>
       </ul>
