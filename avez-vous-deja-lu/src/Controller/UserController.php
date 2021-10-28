@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -49,7 +50,7 @@ class UserController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, User $user): Response
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher): Response
     {
         // Create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
@@ -69,7 +70,7 @@ class UserController extends AbstractController
             if (! empty($clearPassword))
             {
                 // hash password user
-                $hashedPassword = password_hash($clearPassword ,PASSWORD_BCRYPT);
+                $hashedPassword = $passwordHasher->hashPassword($user, $clearPassword);
                 $user->setPassword($hashedPassword);
             }
             //EntityManager edit the user object in database
@@ -94,7 +95,7 @@ class UserController extends AbstractController
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
-    public function add(Request $request): Response
+    public function add(Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new user();
 
@@ -109,17 +110,18 @@ class UserController extends AbstractController
             // Use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
             
+            $entityManager->persist($user);
+            
             $clearPassword = $request->request->get('user')['password'];
             // if password is submitted
             if (! empty($clearPassword))
             {
                 // hash password user
-                $hashedPassword = password_hash($clearPassword ,PASSWORD_BCRYPT);
+                $hashedPassword = $passwordHasher->hashPassword($user, $clearPassword);
                 $user->setPassword($hashedPassword);
             }
 
             // Persist the new object user
-            $entityManager->persist($user);
             //EntityManager edit the user object in database
             $entityManager->flush();
 
