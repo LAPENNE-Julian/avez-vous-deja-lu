@@ -110,8 +110,6 @@ class UserController extends AbstractController
             // Use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
             
-            $entityManager->persist($user);
-            
             $clearPassword = $request->request->get('user')['password'];
             // if password is submitted
             if (! empty($clearPassword))
@@ -122,6 +120,7 @@ class UserController extends AbstractController
             }
 
             // Persist the new object user
+            $entityManager->persist($user);
             //EntityManager edit the user object in database
             $entityManager->flush();
 

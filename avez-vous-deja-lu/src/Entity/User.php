@@ -47,6 +47,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $img;
 
     /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+
+    /**
      * @ORM\Column(type="datetime_immutable")
      */
     private $createdAt;
@@ -100,6 +105,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->downVote = new ArrayCollection();
         $this->known = new ArrayCollection();
         $this->unknown = new ArrayCollection();
+        $this->roles[] = 'ROLE_USER';
 
     }
 
