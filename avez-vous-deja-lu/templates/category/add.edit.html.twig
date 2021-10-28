@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block name %}
+    {% if app.request.get('_route') starts with 'backoffice_category_add' %}
+    {{ parent() }} New Category
+    {% else %}
+    {{ parent() }} Edit Category
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  {{ include('_partials/_nav.html.twig') }}
+  {{ include('_partials/_flash_messages.html.twig') }}
+
+  <h1> 
+      {% if app.request.get('_route') starts with 'backoffice_category_add' %}
+          New category
+      {% else %}
+          Edit category
+      {% endif %}
+  </h1>
+
+  <div class="text-end">
+  <a href="{{url('backoffice_category_browse')}}" class="btn btn-dark">Back to list</a>
+  </div>
+  
+  
+  <!--novalidate disable the html validation-->
+  {{ form_start(category_form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+      <div class="form-group">
+      {{ form_label(category_form.name, null, {'label_attr': {'class': ' col-sm-1 control-label'}}) }}
+        <div class="col-sm-10">
+          {{ form_widget(category_form.name, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(category_form.name) }}
+        </div>
+      </div>
+
+      <div class="form-group">
+      {{ form_label(category_form.color, null, {'label_attr': {'class': ' col-sm-1 control-label'}}) }}
+        <div class="col-sm-10">
+          {{ form_widget(category_form.color, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(category_form.color) }}
+        </div>
+      </div>
+      
+      <div class="form-group">
+      {{ form_label(category_form.img, null, {'label_attr': {'class': ' col-sm-1 control-label'}}) }}
+        <div class="col-sm-10">
+          {{ form_widget(category_form.img, {'attr': {'class': 'form-control'}}) }}
+        </div>
+      {{ form_errors(category_form.img) }}
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-4">
+      {% if 'backoffice_category_add' == app.request.get('_route') %}
+      Add
+      {% else %}
+      Edit
+      {% endif %}
+      </button>
+  {{ form_end(category_form) }} 
+
+</div>
+{% endblock %}
