@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anecdote;
 use App\Form\AnecdoteType;
 use App\Repository\AnecdoteRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AnecdoteController extends AbstractController
 {
     /**
-     * function which list anecdotes
+     * method which list anecdotes
      * 
      * @Route("/", name="browse", methods={"GET"})
      */
@@ -30,6 +31,8 @@ class AnecdoteController extends AbstractController
     }
 
     /**
+     * method which read one anecdote
+     * 
      * @Route("/read/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function read($id, AnecdoteRepository $anecdoteRepository): Response
@@ -41,6 +44,8 @@ class AnecdoteController extends AbstractController
     }
 
     /**
+     * method which edit one anecdote
+     * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Anecdote $anecdote): Response
@@ -55,6 +60,8 @@ class AnecdoteController extends AbstractController
             // If the form is submitted and valid
             // Use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
+
+            $anecdote->setUpdatedAt(new DateTimeImmutable());
 
             //EntityManager edit the anecdote object in database
             $entityManager->flush();
@@ -74,11 +81,13 @@ class AnecdoteController extends AbstractController
     }
 
     /**
+     * method which add one anecdote
+     * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
     public function add(Request $request): Response
     {
-        $anecdote = new anecdote();
+        $anecdote = new Anecdote();
 
         // Create a virgin form (because the object is empty)
         $anecdoteForm = $this->createForm(AnecdoteType::class, $anecdote);
@@ -110,12 +119,14 @@ class AnecdoteController extends AbstractController
     }
 
     /**
+     * method which delete one anecdotev
+     * 
      * @Route("/delete/{id}", name="delete", methods={"GET"})
      */
     public function delete(Anecdote $anecdote, EntityManagerInterface $entityManager): Response
     {
         // Post a flash message in the view
-        $this->addFlash('success', "anecdote {$anecdote->getId()} supprimée");
+        $this->addFlash('success', "anecdote {$anecdote->getId()} deleted successfully");
 
         // Delete the anecdote
         $entityManager->remove($anecdote);
