@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=AnecdoteRepository::class)
@@ -18,24 +19,27 @@ class Anecdote
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("api_anecdote_browse")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * 
+     * @Groups("api_anecdote_browse")
      */
     private $title;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_anecdote_browse")
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=10000)
      * @Assert\NotBlank
+     * 
      */
     private $content;
 
@@ -51,6 +55,7 @@ class Anecdote
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups("api_anecdote_browse")
      */
     private $createdAt;
 
@@ -66,6 +71,7 @@ class Anecdote
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="anecdotes")
+     * @Groups("api_anecdote_browse")
      */
     private $writer;
 
@@ -91,6 +97,7 @@ class Anecdote
 
     /**
      * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="anecdotes")
+     * @Groups("api_anecdote_browse")
      */
     private $category;
 
