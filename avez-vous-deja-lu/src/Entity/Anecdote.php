@@ -71,12 +71,12 @@ class Anecdote
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="anecdotes")
+     * @Groups("api_anecdote_browse")
      */
     private $writer;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="upVote")
-     * @Groups("api_anecdote_browse")
      */
     private $upVoteUsers;
 
