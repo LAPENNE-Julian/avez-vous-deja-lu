@@ -64,6 +64,15 @@ class AnecdoteController extends AbstractController
 
             $anecdote->setUpdatedAt(new DateTimeImmutable());
 
+            //if the new anecdote haven't description when the submit.
+            if($anecdote->getDescription() == null){
+
+                //Get the content of the new anecdote.
+                $anecdoteContent = $anecdote->getContent();
+                //Set the beginning of the anecdote content to description.
+                $anecdote->setDescription(substr($anecdoteContent, 0, 50));
+            }
+            
             //EntityManager edit the anecdote object in database
             $entityManager->flush();
 
@@ -103,6 +112,16 @@ class AnecdoteController extends AbstractController
             
             // Persist the new object anecdote
             $entityManager->persist($anecdote);
+
+            //if the new anecdote haven't description when the submit.
+            if($anecdote->getDescription() == null){
+
+                //Get the content of the new anecdote.
+                $anecdoteContent = $anecdote->getContent();
+                //Set the beginning of the anecdote content to description.
+                $anecdote->setDescription(substr($anecdoteContent, 0, 50));
+            }
+            
             //EntityManager edit the anecdote object in database
             $entityManager->flush();
 

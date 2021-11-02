@@ -21,8 +21,10 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        //creation of fixtures
         $faker = Factory::create();
 
+        //creation user with Role_User
         $basicUser = new User();
         $manager->persist($basicUser);
         $basicUser->setRoles(['ROLE_USER']);
@@ -31,6 +33,7 @@ class AppFixtures extends Fixture
         $hashedPassword = $this->passwordHasher->hashPassword($basicUser, 'user');
         $basicUser->setPassword($hashedPassword);
 
+        //creation user with Role_Admin
         $adminUser = new User();
         $manager->persist($adminUser);
         $adminUser->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
@@ -38,6 +41,7 @@ class AppFixtures extends Fixture
         $adminUser->setEmail('admin@avdl.fr');
         $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'admin'));
 
+        //creation list of categories
         $categoryList = [];
         for ($categoryNumber = 0; $categoryNumber < 5; $categoryNumber++) {
             $category = new Category();
@@ -50,6 +54,7 @@ class AppFixtures extends Fixture
             $categoryList[] = $category;
         }
 
+        //creation anecdotes
         for ($i = 1; $i < 11; $i++) {
             $anecdote = new Anecdote();
             $manager->persist($anecdote);
@@ -58,6 +63,7 @@ class AppFixtures extends Fixture
             $anecdote->setDescription($faker->realText(50));
             $anecdote->setContent($faker->realText(200));
             $anecdote->setSource($faker->url());
+            // add user to writer anecdote
             $anecdote->setWriter($basicUser);
             
             // random categories for anecdote
