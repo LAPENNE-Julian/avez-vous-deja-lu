@@ -39,6 +39,18 @@ class AnecdoteController extends AbstractController
         return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
+    /**
+     * Affiche les 5 denières anecdotes
+     * 
+     * @Route("/latest", name="latest")
+     */
+    public function latest(AnecdoteRepository $anecdoteRepository): Response
+    {
+        $latestAnecdote = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
+
+        return $this->json($latestAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
     private function getNotFoundResponse() {
 
         $responseArray = [
