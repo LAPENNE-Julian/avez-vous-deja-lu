@@ -39,7 +39,6 @@ class Anecdote
     /**
      * @ORM\Column(type="string", length=10000)
      * @Assert\NotBlank
-     * 
      */
     private $content;
 
