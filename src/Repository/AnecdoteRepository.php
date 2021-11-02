@@ -47,4 +47,26 @@ class AnecdoteRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * return five anecdotes with the most upvote
+    * @return Anecdote[] Returns an array of Anecdote objects
+    */
+    public function findByupVote()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb->select('a')
+            ->from('App\Entity\Anecdote', 'a')
+            ->join('a.upVoteUsers', 'voter');
+
+            $query = $qb->getQuery();
+            
+            //Limit to 5 results
+            $query->setMaxResults(5);
+            $result = $query->execute();
+
+            return $result;
+        
+    }
 }
