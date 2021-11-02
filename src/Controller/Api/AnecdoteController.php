@@ -4,12 +4,13 @@ namespace App\Controller\Api;
 
 use App\Repository\AnecdoteRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 /**
- * @Route("api/anecdotes", name="api_anecdote_")
+ * @Route("api/anecdote", name="api_anecdote_")
  */
 class AnecdoteController extends AbstractController
 {
@@ -22,5 +23,30 @@ class AnecdoteController extends AbstractController
 
         return $this->json($allAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
 
+    }
+
+    /**
+     * @Route("/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function read(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        $anecdote = $anecdoteRepository->find($id);
+
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    private function getNotFoundResponse() {
+
+        $responseArray = [
+            'error' => true,
+            'userMessage' => 'Ressource non trouvée',
+            'internalMessage' => 'Cet anecdote n\'existe pas dans la BDD',
+        ];
+
+        return $this->json($responseArray, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
