@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 /**
- * @Route("/anecdotes", name="api_anecdote_")
+ * @Route("api/anecdotes", name="api_anecdote_")
  */
 class AnecdoteController extends AbstractController
 {
@@ -21,5 +21,6 @@ class AnecdoteController extends AbstractController
         $allAnecdotes = $anecdoteRepository->findAll();
 
         return $this->json($allAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+
     }
 }

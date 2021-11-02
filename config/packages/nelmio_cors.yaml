@@ -1,6 +1,6 @@
 nelmio_cors:
     paths:
-        '^/':
+        '^/api':
             origin_regex: true
             allow_origin: ['https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$']
             allow_headers: ['Content-Type', 'Authorization']
