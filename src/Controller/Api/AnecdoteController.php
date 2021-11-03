@@ -36,7 +36,7 @@ class AnecdoteController extends AbstractController
             return $this->getNotFoundResponse();
         }
 
-        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
@@ -156,6 +156,28 @@ class AnecdoteController extends AbstractController
         $latestAnecdote = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
         return $this->json($latestAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Get random anecdotes
+     * 
+     * @Route("/random", name="random",  methods={"GET"})
+     */
+    public function random(AnecdoteRepository $anecdoteRepository): Response
+    {
+        $allAnecdotes = $anecdoteRepository->findAll();
+
+        $anecdotesIndex = count($allAnecdotes);
+
+        $randomIndex = rand(1, $anecdotesIndex);
+
+        $randomAnecdotes = [];
+
+        $anecdote = $anecdoteRepository->find($randomIndex);
+
+        // $randomAnecdotes[] += $randomIndex;
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
   
     /**

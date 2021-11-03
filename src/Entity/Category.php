@@ -19,20 +19,20 @@ class Category
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"api_anecdote_browse" , "api_category_browse"})
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups({"api_anecdote_browse" , "api_category_browse"})
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"api_anecdote_browse" , "api_category_browse"})
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $color;
 

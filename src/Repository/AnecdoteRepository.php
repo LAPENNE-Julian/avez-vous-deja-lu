@@ -65,26 +65,4 @@ class AnecdoteRepository extends ServiceEntityRepository
 
         return $result;
     }
-
-    /**
-     * return five anecdotes with the most upvote
-    * @return Anecdote[] Returns an array of Anecdote objects
-    */
-    public function randomFive()
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-
-        $query = $qb->select('a')
-                    ->from('App\Entity\Anecdote', 'a')
-                    ->orderBy('a.title', 'DESC')
-                    ->getQuery()
-                    //Limit to 5 results
-                    ->setMaxResults(5);
-            
-            $result = $query->execute();
-
-            return $result;
-        
-    }
-
 }
