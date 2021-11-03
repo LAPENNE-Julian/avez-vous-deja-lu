@@ -41,6 +41,7 @@ class AnecdoteController extends AbstractController
 
     /**
      * Return informations of five anecdotes with the most upVote.
+     *
      * @Route("/best", name="best", methods={"GET"})
      */
     public function best(AnecdoteRepository $anecdoteRepository): Response
@@ -58,7 +59,19 @@ class AnecdoteController extends AbstractController
 
         return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
+   
+    /**
+     * Get five latest anecdotes
+     * 
+     * @Route("/latest", name="latest",  methods={"GET"})
+     */
+    public function latest(AnecdoteRepository $anecdoteRepository): Response
+    {
+        $latestAnecdote = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
+        return $this->json($latestAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+  
     /**
      * Return informations for not found response.
      */
