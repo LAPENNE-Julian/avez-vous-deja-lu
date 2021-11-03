@@ -42,6 +42,94 @@ class CategoryController extends AbstractController
     }
 
     /**
+     * Navigation to next in anecdote list by category.
+     * 
+     * @Route("/{categoryId}/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     */
+    public function next(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
+    {
+        //check if id request exist in database
+        $category = $categoryRepository->find($categoryId);
+
+        if (is_null($category)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all anecdotes for id request category
+        $anecdotesListByCategory = $categoryRepository->findByCategory($categoryId);
+
+        //get key and informations foreach anecdotes in list by category.
+        foreach ($anecdotesListByCategory as $key => $anecdote){
+            //count key in array
+            $indexMax = count($anecdotesListByCategory) - 1;
+            //get anecdote id in list by category
+            $anecdoteIdInList = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdotid in the loop.
+            if($anecdoteId == $anecdoteIdInList){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $anecdotesListByCategory[$key];
+
+                //if the current anecdote key is up to the count array
+                if($currentAnecdote == $anecdotesListByCategory[$indexMax]){
+                    //return at the beginning of the array
+                    $nextanecdote = $anecdotesListByCategory[0]; 
+
+                }else{
+                    //pass to the next ocurence array
+                    $nextanecdote = $anecdotesListByCategory[$key + 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Navigation to previous in anecdote list by category.
+     * 
+     * @Route("/{categoryId}/anecdote/{anecdoteId}/prev", name="prev", methods={"GET"})
+     */
+    public function previous(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
+    {
+        //check if id request exist in database
+        $category = $categoryRepository->find($categoryId);
+
+        if (is_null($category)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all anecdotes for id request category
+        $anecdotesListByCategory = $categoryRepository->findByCategory($categoryId);
+
+        //get key and informations foreach anecdotes in list by category.
+        foreach ($anecdotesListByCategory as $key => $anecdote){
+            //count key in array
+            $indexMax = count($anecdotesListByCategory) - 1;
+            //get anecdote id in list by category
+            $anecdoteIdInList = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdotid in the loop.
+            if($anecdoteId == $anecdoteIdInList){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $anecdotesListByCategory[$key];
+
+                //if the current anecdote key is at the beginning of the array
+                if($currentAnecdote == $anecdotesListByCategory[0]){
+                    //return to the end of the array
+                    $nextanecdote = $anecdotesListByCategory[$indexMax]; 
+
+                }else{
+                    //pass to the previous ocurence array
+                    $nextanecdote = $anecdotesListByCategory[$key - 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
      * Return informations for not found response.
      */
     private function getNotFoundResponse() {
