@@ -32,11 +32,102 @@ class AnecdoteController extends AbstractController
     {
         $anecdote = $anecdoteRepository->find($id);
 
+        //if the anecdote id isn't exist.
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
         return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Navigation to read next of all anecdotes.
+     * 
+     * @Route("/{id}/next", name="readNext", methods={"GET"})
+     */
+    public function readNext(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        //Check if anecdote id exist in database
+        $anecdote = $anecdoteRepository->find($id);
+
+        //if the anecdote id isn't exist. 
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        // find all anecdotes in database
+        $allAnecdotes = $anecdoteRepository->findAll();
+       
+        //get key and informations foreach anecdotes.
+        foreach ($allAnecdotes as $key => $anecdote){
+            //count key in array
+            $indexMax = count($allAnecdotes) - 1;
+            //get anecdote id
+            $anecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($id == $anecdoteId){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $allAnecdotes[$key];
+
+                //if the current anecdote key is up to the count array
+                if($currentAnecdote == $allAnecdotes[$indexMax]){
+                    //return at the beginning of the array
+                    $nextAnecdote = $allAnecdotes[0]; 
+
+                }else{
+                    //pass to the next ocurence array
+                    $nextAnecdote = $allAnecdotes[$key + 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Navigation to read previous of all anecdotes.
+     * 
+     * @Route("/{id}/prev", name="readPrev", methods={"GET"})
+     */
+    public function readPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        //Check if anecdote id exist in database
+        $anecdote = $anecdoteRepository->find($id);
+
+        //if the anecdote id isn't exist. 
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        // find all anecdotes in database
+        $allAnecdotes = $anecdoteRepository->findAll();
+
+        //get key and informations foreach five anecdotes with the most upVote.
+        foreach ($allAnecdotes as $key => $anecdote){
+            //count key in array
+            $indexMax = count($allAnecdotes) - 1;
+            //get anecdote id
+            $anecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($id == $anecdoteId){
+                //the current anecdote is set to the current key.
+                $currentanecdote = $allAnecdotes[$key];
+
+                //if the current anecdote key is at the beginning array
+                if ($currentanecdote == $allAnecdotes[0]){
+                    //return at the end of the array
+                    $nextAnecdote = $allAnecdotes[$indexMax]; 
+
+                }else{
+                    //pass to the prev ocurence array
+                    $nextAnecdote = $allAnecdotes[$key - 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
