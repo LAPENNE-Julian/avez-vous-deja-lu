@@ -19,14 +19,14 @@ class Anecdote
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $title;
 
@@ -39,22 +39,25 @@ class Anecdote
     /**
      * @ORM\Column(type="string", length=10000)
      * @Assert\NotBlank
+     * @Groups("api_anecdote_read")
      */
     private $content;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_anecdote_read")
      */
     private $img;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_anecdote_read")
      */
     private $source;
 
     /**
      * @ORM\Column(type="datetime_immutable")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $createdAt;
 
@@ -70,7 +73,7 @@ class Anecdote
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="anecdotes")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $writer;
 
@@ -96,7 +99,7 @@ class Anecdote
 
     /**
      * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="anecdotes")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $category;
 
