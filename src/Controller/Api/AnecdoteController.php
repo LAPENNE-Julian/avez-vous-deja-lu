@@ -47,6 +47,15 @@ class AnecdoteController extends AbstractController
     {
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
+            //if haven't five anecdotes with upVote.
+            if (count($bestAnecdotes) !== 5) {
+
+                //random five anecdotes.
+                $randomAnecdotes = $anecdoteRepository->randomFive();
+                
+                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+            }
+
         return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
