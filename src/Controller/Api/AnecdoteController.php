@@ -40,9 +40,30 @@ class AnecdoteController extends AbstractController
     }
 
     /**
-     * Affiche les 5 denières anecdotes
+     * Return informations of five anecdotes with the most upVote.
+     *
+     * @Route("/best", name="best", methods={"GET"})
+     */
+    public function best(AnecdoteRepository $anecdoteRepository): Response
+    {
+        $bestAnecdotes = $anecdoteRepository->findByupVote();
+
+            //if haven't five anecdotes with upVote.
+            if (count($bestAnecdotes) !== 5) {
+
+                //random five anecdotes.
+                $randomAnecdotes = $anecdoteRepository->randomFive();
+                
+                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+            }
+
+        return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+   
+    /**
+     * Get five latest anecdotes
      * 
-     * @Route("/latest", name="latest")
+     * @Route("/latest", name="latest",  methods={"GET"})
      */
     public function latest(AnecdoteRepository $anecdoteRepository): Response
     {
@@ -50,13 +71,16 @@ class AnecdoteController extends AbstractController
 
         return $this->json($latestAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
-
+  
+    /**
+     * Return informations for not found response.
+     */
     private function getNotFoundResponse() {
 
         $responseArray = [
             'error' => true,
-            'userMessage' => 'Ressource non trouvée',
-            'internalMessage' => 'Cet anecdote n\'existe pas dans la BDD',
+            'userMessage' => 'Resource not found',
+            'internalMessage' => 'This anecdote isn\'t in databse',
         ];
 
         return $this->json($responseArray, Response::HTTP_UNPROCESSABLE_ENTITY);
