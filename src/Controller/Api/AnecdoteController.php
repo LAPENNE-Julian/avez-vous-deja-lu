@@ -121,7 +121,7 @@ class AnecdoteController extends AbstractController
                     $nextAnecdote = $allAnecdotes[$indexMax]; 
 
                 }else{
-                    //pass to the prev ocurence array
+                    //pass to the previous ocurence array
                     $nextAnecdote = $allAnecdotes[$key - 1];
                 }      
             }    
@@ -228,7 +228,7 @@ class AnecdoteController extends AbstractController
                     $nextAnecdote = $bestAnecdotes[$indexMax]; 
 
                 }else{
-                    //pass to the prev ocurence array
+                    //pass to the previous ocurence array
                     $nextAnecdote = $bestAnecdotes[$key - 1];
                 }      
             }    
@@ -312,7 +312,7 @@ class AnecdoteController extends AbstractController
                     $nextAnecdote = $latestAnecdotes[$indexMax]; 
 
                 }else{
-                    //pass to the prev ocurence array
+                    //pass to the previous ocurence array
                     $nextAnecdote = $latestAnecdotes[$key - 1];
                 }      
             }    
