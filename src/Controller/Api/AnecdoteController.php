@@ -86,10 +86,10 @@ class AnecdoteController extends AbstractController
             //if the request id is egal to one of the anecdote id in the loop.
             if($id == $bestAnecdoteId){
                 //the current anecdote is set to the current key.
-                $currentanecdote = $bestAnecdotes[$key];
+                $currentAnecdote = $bestAnecdotes[$key];
 
                 //if the current anecdote key is up to the count array
-                if($currentanecdote == $bestAnecdotes[$indexMax]){
+                if($currentAnecdote == $bestAnecdotes[$indexMax]){
                     //return at the beginning of the array
                     $nextAnecdote = $bestAnecdotes[0]; 
 
@@ -153,9 +153,81 @@ class AnecdoteController extends AbstractController
      */
     public function latest(AnecdoteRepository $anecdoteRepository): Response
     {
-        $latestAnecdote = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
+        $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        return $this->json($latestAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Navigation to next in five latest anecdotes.
+     * 
+     * @Route("/latest/{id}/next", name="latestNext", methods={"GET"})
+     */
+    public function latestNext(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
+
+        //get key and informations foreach five latest anecdotes.
+        foreach ($latestAnecdotes as $key => $anecdote){
+            //count key in array
+            $indexMax = count($latestAnecdotes) - 1;
+            //get anecdote id
+            $latestAnecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($id == $latestAnecdoteId){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $latestAnecdotes[$key];
+
+                //if the current anecdote key is up to the count array
+                if($currentAnecdote == $latestAnecdotes[$indexMax]){
+                    //return at the beginning of the array
+                    $nextAnecdote = $latestAnecdotes[0]; 
+
+                }else{
+                    //pass to the next ocurence array
+                    $nextAnecdote = $latestAnecdotes[$key + 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Navigation to previous in five latest anecdotes.
+     * 
+     * @Route("/latest/{id}/prev", name="latestPrev", methods={"GET"})
+     */
+    public function latestPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
+
+        //get key and informations foreach five latest anecdotes.
+        foreach ($latestAnecdotes as $key => $anecdote){
+            //count key in array
+            $indexMax = count($latestAnecdotes) - 1;
+            //get anecdote id
+            $latestAnecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($id == $latestAnecdoteId){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $latestAnecdotes[$key];
+
+                //if the current anecdote key is at the beginning array
+                if ($currentAnecdote == $latestAnecdotes[0]){
+                    //return at the end of the array
+                    $nextAnecdote = $latestAnecdotes[$indexMax]; 
+
+                }else{
+                    //pass to the prev ocurence array
+                    $nextAnecdote = $latestAnecdotes[$key - 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
   
     /**
