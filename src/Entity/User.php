@@ -39,6 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $email;
 
     /**
+     * @var string The hashed password
      * @ORM\Column(type="string", length=64)
      * @Assert\NotBlank
      */
