@@ -26,7 +26,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string", length=30, unique=true)
      * @Assert\NotBlank
      * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
@@ -39,6 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $email;
 
     /**
+     * @var string The hashed password
      * @ORM\Column(type="string", length=64)
      * @Assert\NotBlank
      */
