@@ -30,11 +30,32 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/{id}/favorite", name="favorite_browse", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function favoriteBrowse(int $id, UserRepository $userRepository): Response
+    {
+        //find user informations by userId
+        $user = $userRepository->find($id);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of favorite anecdotes user
+        $userFavorites = $user->getFavorite();
+
+        return $this->json($userFavorites, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+
+
+    /**
      * method which add one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/add", name="add_favorite", methods={"GET" , "PUT"})
+     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"GET","PUT"})
      */
-    public function addFavorite(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    public function favoriteAdd(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);
@@ -56,9 +77,9 @@ class UserController extends AbstractController
     /**
      * method which delete one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="delete_favorite", methods={"GET" , "PUT"})
+     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"GET","PUT"})
      */
-    public function DeleteFavorite(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    public function favoriteDelete(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);

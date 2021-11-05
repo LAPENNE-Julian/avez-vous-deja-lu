@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
      * @ORM\JoinTable(name="favorite")
-     * @Groups("api_user_read")
+     * @Groups({"api_user_read" , "api_user_favorite_browse"})
      */
     private $favorite;
 
