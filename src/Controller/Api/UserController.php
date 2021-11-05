@@ -30,6 +30,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * List of favorite anecdotes user.
+     * 
      * @Route("/{id}/favorite", name="favorite_browse", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function favoriteBrowse(int $id, UserRepository $userRepository): Response
@@ -48,7 +50,95 @@ class UserController extends AbstractController
         return $this->json($userFavorites, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
+    /**
+     * Navigation to next in list of favorite anecdotes.
+     * 
+     * @Route("/{userId}/favorite/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     */
+    public function favoriteNext(int $userId, int $anecdoteId, userRepository $userRepository): Response
+    {
+        //find user informations by userId
+        $user = $userRepository->find($userId);
 
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all favorite anecdotes for user
+        $favoriteAnecdotesList = $user->getFavorite();
+
+        //get key and informations foreach anecdotes in list
+        foreach ($favoriteAnecdotesList as $key => $anecdote){
+            //count key in array
+            $indexMax = count($favoriteAnecdotesList) - 1;
+            //get anecdote id in list
+            $favoriteAnecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdotid in the loop
+            if($anecdoteId == $favoriteAnecdoteId){
+                //the current anecdote is set to the current key
+                $currentAnecdote = $favoriteAnecdotesList[$key];
+
+                //if the current anecdote key is up to the count array
+                if($currentAnecdote == $favoriteAnecdotesList[$indexMax]){
+                    //return at the beginning of the array
+                    $nextanecdote = $favoriteAnecdotesList[0]; 
+
+                }else{
+                    //pass to the next ocurence array
+                    $nextanecdote = $favoriteAnecdotesList[$key + 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Navigation to previous in list of favorite anecdotes.
+     * 
+     * @Route("/{userId}/favorite/anecdote/{anecdoteId}/prev", name="latestNext", methods={"GET"})
+     */
+    public function favoritePrev(int $userId, int $anecdoteId, UserRepository $userRepository): Response
+    {
+        //find user informations by userId
+        $user = $userRepository->find($userId);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all favorite anecdotes for user
+        $favoriteAnecdotesList = $user->getFavorite();
+
+        //get key and informations foreach anecdotes in list
+        foreach ($favoriteAnecdotesList as $key => $anecdote){
+            //count key in array
+            $indexMax = count($favoriteAnecdotesList) - 1;
+            //get anecdote id in list
+            $favoriteAnecdoteId = $anecdote->getId();
+            
+            //if the request id is egal to one of the anecdotid in the loop.
+            if($anecdoteId == $favoriteAnecdoteId){
+                //the current anecdote is set to the current key.
+                $currentAnecdote = $favoriteAnecdotesList[$key];
+
+                //if the current anecdote key is at the beginning of the array
+                if($currentAnecdote == $favoriteAnecdotesList[0]){
+                    //return to the end of the array
+                    $nextanecdote = $favoriteAnecdotesList[$indexMax]; 
+
+                }else{
+                    //pass to the previous ocurence array
+                    $nextanecdote = $favoriteAnecdotesList[$key - 1];
+                }      
+            }    
+        }
+
+        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
 
     /**
      * method which add one favorite
