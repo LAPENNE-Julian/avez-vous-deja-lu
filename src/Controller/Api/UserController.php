@@ -193,14 +193,23 @@ class UserController extends AbstractController
     /**
      * method which add one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"GET","PUT"})
+     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"GET","PATCH"})
      */
     public function favoriteAdd(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
         //find anecdote informations by anecdoteId
         $newFavoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist
+        if (is_null($newFavoriteAnecdote)) {
+            return $this->getNotFoundResponse();
+        }
 
         $user->addFavorite($newFavoriteAnecdote);
 
@@ -217,16 +226,24 @@ class UserController extends AbstractController
     /**
      * method which delete one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"GET","PUT"})
+     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"GET","PATCH"})
      */
     public function favoriteDelete(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
         //find anecdote informations by anecdoteId
-        $FavoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+        $favoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist
+        if (is_null($favoriteAnecdote)) {
+            return $this->getNotFoundResponse();
+        }
 
-        $user->removeFavorite($FavoriteAnecdote);
+        $user->removeFavorite($favoriteAnecdote);
 
         //EntityManager edit the user object in database
         $entityManager->flush($user);
