@@ -35,6 +35,7 @@ class RegistrationController extends AbstractController
         $jsonContent = $request->getContent();
         // $newUser = json_decode($jsonContent, true);
         $newUser = $serializer->deserialize($jsonContent, User::class, 'json');
+        dd($newUser);
        
         // dd($newUser);
         // validation des données
