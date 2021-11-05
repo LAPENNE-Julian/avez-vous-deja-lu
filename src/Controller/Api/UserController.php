@@ -53,7 +53,7 @@ class UserController extends AbstractController
     /**
      * Navigation to next in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/next", name="latestNext", methods={"GET"})
      */
     public function favoriteNext(int $userId, int $anecdoteId, userRepository $userRepository): Response
     {
@@ -98,7 +98,7 @@ class UserController extends AbstractController
     /**
      * Navigation to previous in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/anecdote/{anecdoteId}/prev", name="latestNext", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/prev", name="latestNext", methods={"GET"})
      */
     public function favoritePrev(int $userId, int $anecdoteId, UserRepository $userRepository): Response
     {
