@@ -19,14 +19,14 @@ class Anecdote
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
+     * @Groups({"api_anecdote_browse", "api_anecdote_read" , "api_user_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
+     * @Groups({"api_anecdote_browse", "api_anecdote_read" , })
      */
     private $title;
 
