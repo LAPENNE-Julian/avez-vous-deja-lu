@@ -19,7 +19,7 @@ class Anecdote
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
+     * @Groups({"api_anecdote_browse", "api_anecdote_read" , "api_user_read" , "api_user_favorite_browse"})
      */
     private $id;
 
@@ -32,7 +32,7 @@ class Anecdote
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse"})
      */
     private $description;
 

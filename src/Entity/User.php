@@ -23,13 +23,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
+     * @Groups({"api_anecdote_browse", "api_anecdote_read", "api_user_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=30, unique=true)
-     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
+     * @Groups({"api_anecdote_browse", "api_anecdote_read", "api_user_read"})
      * @Assert\NotBlank
      */
     private $pseudo;
@@ -37,6 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank
+     * @Groups("api_user_read")
      */
     private $email;
 
@@ -48,7 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_user_read"})
      */
     private $img;
 
@@ -59,6 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups("api_user_read")
      */
     private $createdAt;
 
@@ -70,6 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
      * @ORM\JoinTable(name="favorite")
+     * @Groups({"api_user_read" , "api_user_favorite_browse"})
      */
     private $favorite;
 
