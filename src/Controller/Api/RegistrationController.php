@@ -29,15 +29,12 @@ class RegistrationController extends AbstractController
     /**
      * @Route("/api/register", name="api_register")
      */
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface,SerializerInterface $serializer, ValidatorInterface $validator): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator): Response
     {
-      
         $jsonContent = $request->getContent();
-        // $newUser = json_decode($jsonContent, true);
+      
         $newUser = $serializer->deserialize($jsonContent, User::class, 'json');
-        dd($newUser);
        
-        // dd($newUser);
         // validation des données
         $errors = $validator->validate($newUser);
        
@@ -53,7 +50,6 @@ class RegistrationController extends AbstractController
             )
         );
 
-        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($newUser);
         $entityManager->flush();
 

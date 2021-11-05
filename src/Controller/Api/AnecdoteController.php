@@ -3,6 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Repository\AnecdoteRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -325,6 +327,106 @@ class AnecdoteController extends AbstractController
         }
 
         return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * @Route("/{anecdoteId}/user/{userId}/upvote", name="upVote", methods={"GET","PATCH"})
+     */
+    public function upVote(int $anecdoteId, int $userId, AnecdoteRepository $anecdoteRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    {
+        //Check if anecdote id exist in database
+        $anecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist. 
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find user informations by userId
+        $user = $userRepository->find($userId);
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //add an upvoteUser to the anecdote
+        $allDownVoters = $anecdote->getDownVoteUsers();
+
+        foreach($allDownVoters as $userVoter){
+
+            $userVoterId = $userVoter->getId();
+
+            //find user informations by userId
+            $user = $userRepository->find($userId);
+
+            if($userVoterId == $userId){
+                //remove user in DownVoteUsers anecdote
+                $anecdote->removeDownVoteUser($user);
+            }
+            
+        }
+
+        //add an upvoteUser to the anecdote
+        $addUpvote = $anecdote->addUpVoteUser($user);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $reponseAsArray = [
+            'message' => 'Anecdote upVoted'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_OK );
+
+    }
+
+    /**
+     * @Route("/{anecdoteId}/user/{userId}/downvote", name="downVote", methods={"GET","PATCH"})
+     */
+    public function downVote(int $anecdoteId, int $userId, AnecdoteRepository $anecdoteRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    {
+        //Check if anecdote id exist in database
+        $anecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist. 
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find user informations by userId
+        $user = $userRepository->find($userId);
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //add an upvoteUser to the anecdote
+        $allUpVoters = $anecdote->getUpVoteUsers();
+
+        foreach($allUpVoters as $userVoter){
+
+            $userVoterId = $userVoter->getId();
+
+            //find user informations by userId
+            $user = $userRepository->find($userId);
+
+            if($userVoterId == $userId){
+                //remove user in DownVoteUsers anecdote
+                $anecdote->removeUpVoteUser($user);
+            }
+            
+        }
+
+        //add an downVoteUser to the anecdote
+        $addUpvote = $anecdote->addDownVoteUser($user);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $reponseAsArray = [
+            'message' => 'Anecdote downVoted'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_OK );
+
     }
 
     /**

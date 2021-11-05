@@ -79,21 +79,25 @@ class Anecdote
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="upVote")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $upVoteUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="downVote")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $downVoteUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="known")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $knownUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="unknown")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $unknownUsers;
 
