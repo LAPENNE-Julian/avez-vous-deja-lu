@@ -54,6 +54,32 @@ class UserController extends AbstractController
     }
 
     /**
+     * method which delete one favorite
+     * 
+     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="delete_favorite", methods={"GET" , "PUT"})
+     */
+    public function DeleteFavorite(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $userRepository->find($userId);
+        //find anecdote informations by anecdoteId
+        $FavoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+
+        $user->removeFavorite($FavoriteAnecdote);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $reponseAsArray = [
+            'message' => 'delete favorite'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_OK );
+    }
+
+
+
+    /**
      * Return informations for not found response.
      */
     private function getNotFoundResponse() {
