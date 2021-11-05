@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Security\EmailVerifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,59 +31,58 @@ class RegistrationController extends AbstractController
      */
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface,SerializerInterface $serializer, ValidatorInterface $validator): Response
     {
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-
+      
         $jsonContent = $request->getContent();
+        // $newUser = json_decode($jsonContent, true);
         $newUser = $serializer->deserialize($jsonContent, User::class, 'json');
-
+       
+        // dd($newUser);
         // validation des données
         $errors = $validator->validate($newUser);
        
-        $form->submit($newUser);
-
-        $form->handleRequest($request);
-        
-        if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
-            $user->setPassword(
-            $userPasswordHasherInterface->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
-            );
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('avezvousdejalu.pro@gmail.com', 'Avez-vous déjà lu..?'))
-                    ->to($user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-            // do anything else you need here, like send an email
-
-            // $reponseAsArray = [
-            //     'message' => 'Utilisateur enregistré',
-            //     'id' => $user->getId()
-            // ];
-
-            $jsonResponse = [
-                'message' => 'User not created',
-            ];
-
-            return $this->json($jsonResponse, Response::HTTP_CREATED);
+        if(count($errors)) {
+            return $this->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY); 
         }
+    
+        // encode the plain password
+        $newUser->setPassword(
+        $userPasswordHasherInterface->hashPassword(
+                $newUser,
+                $newUser->getPassword()
+            )
+        );
 
-        return $this->json(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($newUser);
+        $entityManager->flush();
+
+        // generate a signed url and email it to the user
+        $this->emailVerifier->sendEmailConfirmation('app_verify_email', $newUser,
+            (new TemplatedEmail())
+                ->from(new Address('avezvousdejalu.pro@gmail.com', 'Avez-vous déjà lu..?'))
+                ->to($newUser->getEmail())
+                ->subject('Please Confirm your Email')
+                ->htmlTemplate('registration/confirmation_email.html.twig')
+        );
+        // do anything else you need here, like send an email
+
+        // $reponseAsArray = [
+        //     'message' => 'Utilisateur enregistré',
+        //     'id' => $user->getId()
+        // ];
+
+        $jsonResponse = [
+            'message' => 'User created',
+        ];
+
+        return $this->json($jsonResponse, Response::HTTP_CREATED);
+    
+
+        //return $this->json(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /**
-     * @Route("/api/verify/email", name="app_verify_email")
+     * @Route("/verify/email", name="app_verify_email")
      */
     public function verifyUserEmail(Request $request): Response
     {
