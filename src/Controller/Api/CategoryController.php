@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Repository\CategoryRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,6 +26,7 @@ class CategoryController extends AbstractController
 
     /**
      * @Route("/{id}/anecdote", name="browse_anecdotes", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function browseAnecdotes(int $id, CategoryRepository $categoryRepository): Response
     {
@@ -45,6 +47,7 @@ class CategoryController extends AbstractController
      * Navigation to next in anecdote list by category.
      * 
      * @Route("/{categoryId}/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function next(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
     {
@@ -89,6 +92,7 @@ class CategoryController extends AbstractController
      * Navigation to previous in anecdote list by category.
      * 
      * @Route("/{categoryId}/anecdote/{anecdoteId}/prev", name="prev", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function previous(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
     {

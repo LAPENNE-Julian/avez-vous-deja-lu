@@ -3,19 +3,23 @@
 namespace App\Controller\Api;
 
 use App\Repository\AnecdoteRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
+
 /**
  * @Route("api/anecdote", name="api_anecdote_")
+ * 
  */
 class AnecdoteController extends AbstractController
 {
     /**
      * @Route("", name="browse", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function browse(AnecdoteRepository $anecdoteRepository): Response
     {
@@ -44,6 +48,7 @@ class AnecdoteController extends AbstractController
      * Navigation to read next of all anecdotes.
      * 
      * @Route("/{id}/next", name="readNext", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function readNext(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -89,6 +94,7 @@ class AnecdoteController extends AbstractController
      * Navigation to read previous of all anecdotes.
      * 
      * @Route("/{id}/prev", name="readPrev", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function readPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -325,6 +331,7 @@ class AnecdoteController extends AbstractController
      * Get random anecdotes
      * 
      * @Route("/random", name="random",  methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function random(AnecdoteRepository $anecdoteRepository): Response
     {
