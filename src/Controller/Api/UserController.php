@@ -2,12 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\User;
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("api/user", name="api_user_")
@@ -27,6 +32,51 @@ class UserController extends AbstractController
         }
 
         return $this->json($user, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
+    }
+
+    /**
+     * @Route("/{id}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
+     */
+    public function edit(int $id, UserRepository $userRepository, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $userRepository->find($id);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get Json content
+        $jsonContent = $request->getContent();
+
+        //deserialize Json content for User entity
+        $serializer->deserialize($jsonContent, User::class, 'json',[
+            AbstractNormalizer::OBJECT_TO_POPULATE => $user
+        ]);
+
+        // validation
+        $errors = $validator->validate($user);
+
+        //if errors
+        if(count($errors) > 0)
+        {
+            $reponseAsArray = [
+                'error' => true,
+                'message' => $errors,
+            ];
+
+            return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        //EntityManager edit the object in database
+        $entityManager->flush();
+        
+        $reponseAsArray = [
+            'message' => 'user update'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_CREATED);
     }
 
     /**
