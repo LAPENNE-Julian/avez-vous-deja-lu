@@ -22,13 +22,23 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/", name="read", methods={"GET"})
      */
-    public function read(int $id, UserRepository $userRepository): Response
-    {
-        $user = $userRepository->find($id);
+    public function read(UserRepository $userRepository, Request $request, SerializerInterface $serializer): Response
+    {    
+        //get Json content (user email)
+        $jsonContent = $request->getContent();
+    
+        //replace Json Content to an object
+        $userInSession = $serializer->deserialize($jsonContent, User::class, 'json');
 
-        //if the user id isn't exist.
+        //get email in Json Content
+        $email = $userInSession->getEmail();
+
+        //Find user informations by email
+        $user = $userRepository->findByEmail($email);
+
+        //if the user email isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
