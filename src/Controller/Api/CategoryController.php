@@ -51,7 +51,7 @@ class CategoryController extends AbstractController
     /**
      * Navigation to next in anecdote list by category.
      * 
-     * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="next_anecdote", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
     public function next(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response
@@ -76,7 +76,7 @@ class CategoryController extends AbstractController
     /**
      * Navigation to previous in anecdote list by category.
      * 
-     * @Route("/{categorySlug}/anecdote/{anecdoteId}/prev", name="prev", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/prev", name="previous_anecdote", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
     public function previous(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response

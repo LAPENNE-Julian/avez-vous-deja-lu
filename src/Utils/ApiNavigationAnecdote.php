@@ -2,7 +2,6 @@
 
 namespace App\Utils;
 
-use App\Controller\Api\AnecdoteController;
 use App\Entity\Anecdote;
 
 class ApiNavigationAnecdote 
@@ -11,10 +10,10 @@ class ApiNavigationAnecdote
     /**
      * Navigation to next of anecdote array. 
      *
-     * @param array $array
+     * @param array|collection $array
      * @return Anecdote|false $nextAnecdote
      */
-    public function next(array $array, int $id)
+    public function next($array, int $id)
     {
         //get key and informations foreach anecdotes.
         foreach ($array as $key => $anecdote){
@@ -52,10 +51,10 @@ class ApiNavigationAnecdote
     /**
      * Navigation to previous of anecdote array. 
      *
-     * @param array $array
+     * @param array|collection $array
      * @return Anecdote|false $previousAnecdote
      */
-    public function previous(array $array, int $id)
+    public function previous($array, int $id)
     {
         //get key and informations foreach anecdotes.
         foreach ($array as $key => $anecdote){
