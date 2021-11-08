@@ -9,14 +9,17 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AppFixtures extends Fixture
 {
     private $passwordHasher; 
+    private $slugger;
     
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
+    public function __construct(UserPasswordHasherInterface $passwordHasher,SluggerInterface $slugger)
     {
         $this->passwordHasher = $passwordHasher;
+        $this->slugger = $slugger;
     }
 
     public function load(ObjectManager $manager): void
@@ -48,6 +51,7 @@ class AppFixtures extends Fixture
             $manager->persist($category);
 
             $category->setName($faker->realText(10));
+            $category->setSlug($this->slugger->slug(strtolower($category->getName())));
             $category->setColor($faker->hexcolor());
 
             // add all categories in array

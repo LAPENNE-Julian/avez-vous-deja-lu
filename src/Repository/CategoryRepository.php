@@ -53,9 +53,9 @@ class CategoryRepository extends ServiceEntityRepository
     * @return Anecdote[] Returns an array of Anecdote objects
     */
     
-    public function findByCategory($id)
+    public function findByCategory($categorySlug)
     {
-        $dql = "SELECT a FROM App\Entity\Anecdote a JOIN a.category c WHERE c.id = $id";
+        $dql = "SELECT a FROM App\Entity\Anecdote a JOIN a.category c WHERE c.slug =". " '$categorySlug' ";
     
         $query = $this->getEntityManager()->createQuery($dql);
         $result = $query->execute();

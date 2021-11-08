@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @Route("/backoffice/category", name="backoffice_category_")
@@ -51,7 +51,7 @@ class CategoryController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Category $category): Response
+    public function edit(Request $request, Category $category,SluggerInterface $slugger ): Response
     {
         // Create a form for category edition
         $categoryForm = $this->createForm(CategoryType::class, $category);
@@ -65,6 +65,13 @@ class CategoryController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
 
             $category->setUpdatedAt(new DateTimeImmutable());
+
+            //get category name
+            $categoryName = $category->getName();
+            //slug categoryName
+            $categoryNameSlug = $slugger->slug(strtolower($categoryName));
+            //set the slug property of the category object
+            $categorySlug = $category->setSlug($categoryNameSlug);
 
             //EntityManager edit the category object in database
             $entityManager->flush();
@@ -88,7 +95,7 @@ class CategoryController extends AbstractController
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
-    public function add(Request $request): Response
+    public function add(Request $request, SluggerInterface $slugger): Response
     {
         $category = new Category();
 
@@ -102,7 +109,14 @@ class CategoryController extends AbstractController
             // If the form is submitted and valid
             // Use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
-            
+
+            //get category name
+            $categoryName = $category->getName();
+            //slug categoryName
+            $categoryNameSlug = $slugger->slug(strtolower($categoryName));
+            //set the slug property of the category object
+            $categorySlug = $category->setSlug($categoryNameSlug);
+
             // Persist the new object category
             $entityManager->persist($category);
             //EntityManager edit the category object in database
