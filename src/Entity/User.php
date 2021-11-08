@@ -119,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->downVote = new ArrayCollection();
         $this->known = new ArrayCollection();
         $this->unknown = new ArrayCollection();
-        $this->roles[] = 'ROLE_USER';
+        $this->roles[] = "ROLE_USER";
 
     }
 

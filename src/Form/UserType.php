@@ -4,11 +4,14 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
+
+use function PHPSTORM_META\type;
 
 class UserType extends AbstractType
 {
@@ -31,8 +34,17 @@ class UserType extends AbstractType
             ->add('img', null, [
                 "label" => "Image",
             ])
+            ->add('roles', ChoiceType::class, [
+                "label" => "Roles",
+                'choices' => [
+                    'Admin' => "ROLE_ADMIN",
+                    'User' => "ROLE_USER",
+                ],
+                'multiple' => true,
+                'expanded' => true,
+            ])
         ;
-    }
+    } 
 
     public function configureOptions(OptionsResolver $resolver): void
     {

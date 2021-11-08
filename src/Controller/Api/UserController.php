@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/", name="read", methods={"GET"})
+     * @Route("", name="read", methods={"GET"})
      */
     public function read(UserRepository $userRepository, Request $request, SerializerInterface $serializer): Response
     {    
