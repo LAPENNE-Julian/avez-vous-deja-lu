@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Repository\CategoryRepository;
+use App\Utils\ApiNavigationAnecdote;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CategoryController extends AbstractController
 {
+    private $apiNavigationAnecdote;
+    
+    public function __construct(ApiNavigationAnecdote $apiNavigationAnecdote )
+    {
+        $this->apiNavigationAnecdote = $apiNavigationAnecdote;
+    }
+
     /**
      * @Route("", name="browse", methods={"GET"})
      */
@@ -51,35 +59,18 @@ class CategoryController extends AbstractController
         //get all anecdotes for category slug request 
         $anecdotesListByCategory = $categoryRepository->findByCategory($categorySlug);
 
-        if (is_null($anecdotesListByCategory)) {
-            return $this->getNotFoundResponse();
-        }
+            if (is_null($anecdotesListByCategory)) {
+                return $this->getNotFoundResponse();
+            }
+       
+        $nextAnecdote = $this->apiNavigationAnecdote->next($anecdotesListByCategory, $anecdoteId);
 
-        //get key and informations foreach anecdotes in list by category.
-        foreach ($anecdotesListByCategory as $key => $anecdote){
-            //count key in array
-            $indexMax = count($anecdotesListByCategory) - 1;
-            //get anecdote id in list by category
-            $anecdoteIdInList = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdotid in the loop.
-            if($anecdoteId == $anecdoteIdInList){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $anecdotesListByCategory[$key];
+            //if the anecdote id isn't exist in the $anecdotesListByCategory
+            if ($nextAnecdote == false) {
+                return $this->getNotFoundResponse();
+            }
 
-                //if the current anecdote key is up to the count array
-                if($currentAnecdote == $anecdotesListByCategory[$indexMax]){
-                    //return at the beginning of the array
-                    $nextanecdote = $anecdotesListByCategory[0]; 
-
-                }else{
-                    //pass to the next ocurence array
-                    $nextanecdote = $anecdotesListByCategory[$key + 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
@@ -93,35 +84,18 @@ class CategoryController extends AbstractController
         //get all anecdotes for category slug request
         $anecdotesListByCategory = $categoryRepository->findByCategory($categorySlug);
         
-        if (is_null($anecdotesListByCategory)) {
-            return $this->getNotFoundResponse();
-        }
+            if (is_null($anecdotesListByCategory)) {
+                return $this->getNotFoundResponse();
+            }
 
-        //get key and informations foreach anecdotes in list by category.
-        foreach ($anecdotesListByCategory as $key => $anecdote){
-            //count key in array
-            $indexMax = count($anecdotesListByCategory) - 1;
-            //get anecdote id in list by category
-            $anecdoteIdInList = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdotid in the loop.
-            if($anecdoteId == $anecdoteIdInList){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $anecdotesListByCategory[$key];
+        $previousAnecdote = $this->apiNavigationAnecdote->previous($anecdotesListByCategory, $anecdoteId);
 
-                //if the current anecdote key is at the beginning of the array
-                if($currentAnecdote == $anecdotesListByCategory[0]){
-                    //return to the end of the array
-                    $nextanecdote = $anecdotesListByCategory[$indexMax]; 
+            //if the anecdote id isn't exist in the $anecdotesListByCategory
+            if ($previousAnecdote == false) {
+                return $this->getNotFoundResponse();
+            }
 
-                }else{
-                    //pass to the previous ocurence array
-                    $nextanecdote = $anecdotesListByCategory[$key - 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
