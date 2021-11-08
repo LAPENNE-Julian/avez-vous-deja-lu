@@ -63,6 +63,20 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->getOneOrNullResult();
     }
 
+    /**
+     * returns all informations of the user by email
+    * @return user Returns a user
+    */
+    public function findByEmail($email)
+    {
+        $dql = "SELECT u FROM App\Entity\User u WHERE u.email =". " '$email' ";
+    
+        $query = $this->getEntityManager()->createQuery($dql);
+        $result = $query->execute();
+
+        return $result;
+    }
+
     /** @deprecated since Symfony 5.3 */
     public function loadUserByUsername(string $pseudoOrEmail): ?User
     {
