@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
+use App\Utils\ApiNavigationAnecdote;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,7 +20,16 @@ use Symfony\Component\Serializer\Serializer;
  */
 class AnecdoteController extends AbstractController
 {
+    private $apiNavigationAnecdote;
+    
+    public function __construct(ApiNavigationAnecdote $apiNavigationAnecdote )
+    {
+        $this->apiNavigationAnecdote = $apiNavigationAnecdote;
+    }
+
     /**
+     * Get all anecdotes.
+     * 
      * @Route("", name="browse", methods={"GET"})
      */
     public function browse(AnecdoteRepository $anecdoteRepository): Response
@@ -31,13 +41,15 @@ class AnecdoteController extends AbstractController
     }
 
     /**
+     * Read an anecdote by id.
+     * 
      * @Route("/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function read(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
         $anecdote = $anecdoteRepository->find($id);
 
-        //if the anecdote id isn't exist.
+        //if the anecdote id isn't exist. 
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
@@ -64,35 +76,19 @@ class AnecdoteController extends AbstractController
         // find all anecdotes in database
         $allAnecdotes = $anecdoteRepository->findAll();
        
-        //get key and informations foreach anecdotes.
-        foreach ($allAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($allAnecdotes) - 1;
-            //get anecdote id
-            $anecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $anecdoteId){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $allAnecdotes[$key];
+        $nextAnecdote = $this->apiNavigationAnecdote->next($allAnecdotes, $id);
 
-                //if the current anecdote key is up to the count array
-                if($currentAnecdote == $allAnecdotes[$indexMax]){
-                    //return at the beginning of the array
-                    $nextAnecdote = $allAnecdotes[0]; 
-
-                }else{
-                    //pass to the next ocurence array
-                    $nextAnecdote = $allAnecdotes[$key + 1];
-                }      
-            }    
-        }
+            //if the anecdote id isn't exist in the $allAnecdotes
+            if ($nextAnecdote == false) {
+                
+                return $this->getNotFoundResponse();
+            }
 
         return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
-     * Navigation to read previous of all anecdotes.
+     * Navigation to read previous of all anecdotes
      * 
      * @Route("/{id}/prev", name="readPrev", methods={"GET"})
      * @IsGranted("ROLE_USER")
@@ -102,7 +98,7 @@ class AnecdoteController extends AbstractController
         //Check if anecdote id exist in database
         $anecdote = $anecdoteRepository->find($id);
 
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
@@ -110,31 +106,15 @@ class AnecdoteController extends AbstractController
         // find all anecdotes in database
         $allAnecdotes = $anecdoteRepository->findAll();
 
-        //get key and informations foreach five anecdotes with the most upVote.
-        foreach ($allAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($allAnecdotes) - 1;
-            //get anecdote id
-            $anecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $anecdoteId){
-                //the current anecdote is set to the current key.
-                $currentanecdote = $allAnecdotes[$key];
+        $previousAnecdote = $this->apiNavigationAnecdote->previous($allAnecdotes, $id);
 
-                //if the current anecdote key is at the beginning array
-                if ($currentanecdote == $allAnecdotes[0]){
-                    //return at the end of the array
-                    $nextAnecdote = $allAnecdotes[$indexMax]; 
+            //if the anecdote id isn't exist in the $allAnecdotes
+            if ($previousAnecdote == false) {
+                
+                return $this->getNotFoundResponse();
+            }
 
-                }else{
-                    //pass to the previous ocurence array
-                    $nextAnecdote = $allAnecdotes[$key - 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
@@ -146,10 +126,10 @@ class AnecdoteController extends AbstractController
     {
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
-            //if haven't five anecdotes with upVote.
+            //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
 
-                //random five anecdotes.
+                //random five anecdotes
                 $randomAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
                 
                 return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
@@ -165,39 +145,23 @@ class AnecdoteController extends AbstractController
      */
     public function bestNext(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
-        //get an array of five anecdotes with the most upVote.
+        //get an array of five anecdotes with the most upVote
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
-            //if haven't five anecdotes with upVote.
+            //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
-                //random five anecdotes.
+                //random five anecdotes
                 $bestAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
             }
 
-        //get key and informations foreach five anecdotes with the most upVote.
-        foreach ($bestAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($bestAnecdotes) - 1;
-            //get anecdote id
-            $bestAnecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $bestAnecdoteId){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $bestAnecdotes[$key];
+        $nextAnecdote = $this->apiNavigationAnecdote->next($bestAnecdotes, $id);
 
-                //if the current anecdote key is up to the count array
-                if($currentAnecdote == $bestAnecdotes[$indexMax]){
-                    //return at the beginning of the array
-                    $nextAnecdote = $bestAnecdotes[0]; 
-
-                }else{
-                    //pass to the next ocurence array
-                    $nextAnecdote = $bestAnecdotes[$key + 1];
-                }      
-            }    
-        }
-
+            //if the anecdote id isn't exist in the $bestAnecdote
+            if ($nextAnecdote == false) {
+                
+                return $this->getNotFoundResponse();
+            }
+        
         return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
@@ -208,40 +172,24 @@ class AnecdoteController extends AbstractController
      */
     public function bestPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
-        //get an array of five anecdotes with the most upVote.
+        //get an array of five anecdotes with the most upVote
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
-            //if haven't five anecdotes with upVote.
+            //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
-                //random five anecdotes.
+                //random five anecdotes
                 $bestAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
             }
 
-        //get key and informations foreach five anecdotes with the most upVote.
-        foreach ($bestAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($bestAnecdotes) - 1;
-            //get anecdote id
-            $bestAnecdoteId = $anecdote->getId();
+        $previousAnecdote = $this->apiNavigationAnecdote->previous($bestAnecdotes, $id);
             
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $bestAnecdoteId){
-                //the current anecdote is set to the current key.
-                $currentanecdote = $bestAnecdotes[$key];
+            //if the anecdote id isn't exist in the $bestAnecdote
+            if ($previousAnecdote == false) {
+                
+                return $this->getNotFoundResponse();
+            }
 
-                //if the current anecdote key is at the beginning array
-                if ($currentanecdote == $bestAnecdotes[0]){
-                    //return at the end of the array
-                    $nextAnecdote = $bestAnecdotes[$indexMax]; 
-
-                }else{
-                    //pass to the previous ocurence array
-                    $nextAnecdote = $bestAnecdotes[$key - 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
     
     /**
@@ -265,29 +213,13 @@ class AnecdoteController extends AbstractController
     {
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        //get key and informations foreach five latest anecdotes.
-        foreach ($latestAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($latestAnecdotes) - 1;
-            //get anecdote id
-            $latestAnecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $latestAnecdoteId){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $latestAnecdotes[$key];
+        $nextAnecdote = $this->apiNavigationAnecdote->next($latestAnecdotes, $id);
 
-                //if the current anecdote key is up to the count array
-                if($currentAnecdote == $latestAnecdotes[$indexMax]){
-                    //return at the beginning of the array
-                    $nextAnecdote = $latestAnecdotes[0]; 
-
-                }else{
-                    //pass to the next ocurence array
-                    $nextAnecdote = $latestAnecdotes[$key + 1];
-                }      
-            }    
-        }
+            //if the anecdote id isn't exist in the $latestAnecdotes
+            if ($nextAnecdote == false) {
+                
+                return $this->getNotFoundResponse();
+            }
 
         return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
@@ -301,34 +233,14 @@ class AnecdoteController extends AbstractController
     {
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        //get key and informations foreach five latest anecdotes.
-        foreach ($latestAnecdotes as $key => $anecdote){
-            //count key in array
-            $indexMax = count($latestAnecdotes) - 1;
-            //get anecdote id
-            $latestAnecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdote id in the loop.
-            if($id == $latestAnecdoteId){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $latestAnecdotes[$key];
+        $previousAnecdote = $this->apiNavigationAnecdote->previous($latestAnecdotes, $id);
 
-                //if the current anecdote key is at the beginning array
-                if ($currentAnecdote == $latestAnecdotes[0]){
-                    //return at the end of the array
-                    $nextAnecdote = $latestAnecdotes[$indexMax]; 
-
-                }else{
-                    //pass to the previous ocurence array
-                    $nextAnecdote = $latestAnecdotes[$key - 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
+     * User can put an upVote to an anecdote.
+     * 
      * @Route("/{anecdoteId}/user/{userId}/upvote", name="upVote", methods={"GET","PATCH"})
      */
     public function upVote(int $anecdoteId, int $userId, AnecdoteRepository $anecdoteRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
