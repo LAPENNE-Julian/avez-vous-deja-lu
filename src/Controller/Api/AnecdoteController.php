@@ -21,7 +21,6 @@ class AnecdoteController extends AbstractController
 {
     /**
      * @Route("", name="browse", methods={"GET"})
-     * @IsGranted("ROLE_USER")
      */
     public function browse(AnecdoteRepository $anecdoteRepository): Response
     {

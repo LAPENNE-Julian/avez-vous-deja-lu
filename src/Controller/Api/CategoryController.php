@@ -25,20 +25,17 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/anecdote", name="browse_anecdotes", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote", name="browse_anecdotes", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
-    public function browseAnecdotes(int $id, CategoryRepository $categoryRepository): Response
+    public function browseAnecdotes(string $categorySlug, CategoryRepository $categoryRepository): Response
     {
-        //check if id request exist in database
-        $category = $categoryRepository->find($id);
+        //get all anecdotes for category slug request 
+        $anecdotesByCategory = $categoryRepository->findByCategory($categorySlug);
 
-        if (is_null($category)) {
+        if (is_null($anecdotesByCategory)) {
             return $this->getNotFoundResponse();
         }
-
-        //get all anecdotes for id request category
-        $anecdotesByCategory = $categoryRepository->findByCategory($id);
 
         return $this->json($anecdotesByCategory, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
@@ -46,20 +43,17 @@ class CategoryController extends AbstractController
     /**
      * Navigation to next in anecdote list by category.
      * 
-     * @Route("/{categoryId}/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="latestNext", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
-    public function next(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
+    public function next(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response
     {
-        //check if id request exist in database
-        $category = $categoryRepository->find($categoryId);
+        //get all anecdotes for category slug request 
+        $anecdotesListByCategory = $categoryRepository->findByCategory($categorySlug);
 
-        if (is_null($category)) {
+        if (is_null($anecdotesListByCategory)) {
             return $this->getNotFoundResponse();
         }
-
-        //get all anecdotes for id request category
-        $anecdotesListByCategory = $categoryRepository->findByCategory($categoryId);
 
         //get key and informations foreach anecdotes in list by category.
         foreach ($anecdotesListByCategory as $key => $anecdote){
@@ -91,20 +85,17 @@ class CategoryController extends AbstractController
     /**
      * Navigation to previous in anecdote list by category.
      * 
-     * @Route("/{categoryId}/anecdote/{anecdoteId}/prev", name="prev", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/prev", name="prev", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
-    public function previous(int $categoryId, int $anecdoteId, CategoryRepository $categoryRepository): Response
+    public function previous(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response
     {
-        //check if id request exist in database
-        $category = $categoryRepository->find($categoryId);
-
-        if (is_null($category)) {
+        //get all anecdotes for category slug request
+        $anecdotesListByCategory = $categoryRepository->findByCategory($categorySlug);
+        
+        if (is_null($anecdotesListByCategory)) {
             return $this->getNotFoundResponse();
         }
-
-        //get all anecdotes for id request category
-        $anecdotesListByCategory = $categoryRepository->findByCategory($categoryId);
 
         //get key and informations foreach anecdotes in list by category.
         foreach ($anecdotesListByCategory as $key => $anecdote){

@@ -57,6 +57,11 @@ class Category
      */
     private $anecdotes;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $slug;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -156,6 +161,18 @@ class Category
         if ($this->anecdotes->removeElement($anecdote)) {
             $anecdote->removeCategory($this);
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }
