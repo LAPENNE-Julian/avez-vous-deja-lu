@@ -22,7 +22,7 @@ class AnecdoteController extends AbstractController
 {
     private $apiNavigationAnecdote;
     
-    public function __construct(ApiNavigationAnecdote $apiNavigationAnecdote )
+    public function __construct(ApiNavigationAnecdote $apiNavigationAnecdote)
     {
         $this->apiNavigationAnecdote = $apiNavigationAnecdote;
     }
@@ -44,6 +44,7 @@ class AnecdoteController extends AbstractController
      * Read an anecdote by id.
      * 
      * @Route("/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
+     * @IsGranted("ROLE_USER")
      */
     public function read(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -60,7 +61,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to read next of all anecdotes.
      * 
-     * @Route("/{id}/next", name="readNext", methods={"GET"})
+     * @Route("/{id}/next", name="read_next", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
     public function readNext(int $id, AnecdoteRepository $anecdoteRepository): Response
@@ -80,17 +81,16 @@ class AnecdoteController extends AbstractController
 
             //if the anecdote id isn't exist in the $allAnecdotes
             if ($nextAnecdote == false) {
-                
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
      * Navigation to read previous of all anecdotes
      * 
-     * @Route("/{id}/prev", name="readPrev", methods={"GET"})
+     * @Route("/{id}/prev", name="read_previous", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
     public function readPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
@@ -110,11 +110,10 @@ class AnecdoteController extends AbstractController
 
             //if the anecdote id isn't exist in the $allAnecdotes
             if ($previousAnecdote == false) {
-                
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
@@ -132,16 +131,16 @@ class AnecdoteController extends AbstractController
                 //random five anecdotes
                 $randomAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
                 
-                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
             }
 
-        return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
      * Navigation to next in five anecdotes with the most upVote.
      * 
-     * @Route("/best/{id}/next", name="bestNext", methods={"GET"})
+     * @Route("/best/{id}/next", name="best_next", methods={"GET"})
      */
     public function bestNext(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -158,17 +157,16 @@ class AnecdoteController extends AbstractController
 
             //if the anecdote id isn't exist in the $bestAnecdote
             if ($nextAnecdote == false) {
-                
                 return $this->getNotFoundResponse();
             }
         
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
-     * Navigation to previous in five anecdotes with the most upVote.
+     * Navigation to previous in for five anecdotes with the most upVote.
      * 
-     * @Route("/best/{id}/prev", name="bestPrev", methods={"GET"})
+     * @Route("/best/{id}/prev", name="best_previous", methods={"GET"})
      */
     public function bestPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -185,11 +183,10 @@ class AnecdoteController extends AbstractController
             
             //if the anecdote id isn't exist in the $bestAnecdote
             if ($previousAnecdote == false) {
-                
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
     
     /**
@@ -201,13 +198,13 @@ class AnecdoteController extends AbstractController
     {
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
      * Navigation to next in five latest anecdotes.
      * 
-     * @Route("/latest/{id}/next", name="latestNext", methods={"GET"})
+     * @Route("/latest/{id}/next", name="latest_next", methods={"GET"})
      */
     public function latestNext(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -217,17 +214,16 @@ class AnecdoteController extends AbstractController
 
             //if the anecdote id isn't exist in the $latestAnecdotes
             if ($nextAnecdote == false) {
-                
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
      * Navigation to previous in five latest anecdotes.
      * 
-     * @Route("/latest/{id}/prev", name="latestPrev", methods={"GET"})
+     * @Route("/latest/{id}/prev", name="latest_previous", methods={"GET"})
      */
     public function latestPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -235,7 +231,12 @@ class AnecdoteController extends AbstractController
 
         $previousAnecdote = $this->apiNavigationAnecdote->previous($latestAnecdotes, $id);
 
-        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+            //if the anecdote id isn't exist in the $latestAnecdote
+            if ($previousAnecdote == false) {
+                return $this->getNotFoundResponse();
+            }
+
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
@@ -247,14 +248,14 @@ class AnecdoteController extends AbstractController
     {
         //Check if anecdote id exist in database
         $anecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
         //find user informations by userId
         $user = $userRepository->find($userId);
-        //if the user id isn't exist.
+        //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
@@ -297,14 +298,14 @@ class AnecdoteController extends AbstractController
     {
         //Check if anecdote id exist in database
         $anecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
         //find user informations by userId
         $user = $userRepository->find($userId);
-        //if the user id isn't exist.
+        //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
@@ -347,14 +348,14 @@ class AnecdoteController extends AbstractController
     {
         //Check if anecdote id exist in database
         $anecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
         //find user informations by userId
         $user = $userRepository->find($userId);
-        //if the user id isn't exist.
+        //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
@@ -397,14 +398,14 @@ class AnecdoteController extends AbstractController
     {
         //Check if anecdote id exist in database
         $anecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
         //find user informations by userId
         $user = $userRepository->find($userId);
-        //if the user id isn't exist.
+        //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }

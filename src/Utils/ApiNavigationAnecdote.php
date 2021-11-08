@@ -4,8 +4,10 @@ namespace App\Utils;
 
 use App\Entity\Anecdote;
 
-class ApiNavigationAnecdote 
-{
+/**
+ * Navigation to previous and next anecdote
+ */
+class ApiNavigationAnecdote {
 
     /**
      * Navigation to next of anecdote array. 
