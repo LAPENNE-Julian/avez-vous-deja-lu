@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
      * @ORM\JoinTable(name="favorite")
-     * @Groups({"api_user_read" , "api_user_favorite_browse"})
+     * @Groups("api_user_read")
      */
     private $favorite;
 
@@ -110,6 +110,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $isVerified = false;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="randomUsers")
+     * @ORM\JoinTable(name="random")
+     * @Groups("api_user_read")
+     */
+    private $randomAnecdotes;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -120,6 +127,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->known = new ArrayCollection();
         $this->unknown = new ArrayCollection();
         $this->roles[] = "ROLE_USER";
+        $this->randomAnecdotes = new ArrayCollection();
 
     }
 
@@ -418,6 +426,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): self
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getRandomAnecdotes(): Collection
+    {
+        return $this->randomAnecdotes;
+    }
+
+    public function addRandomAnecdote(Anecdote $randomAnecdote): self
+    {
+        if (!$this->randomAnecdotes->contains($randomAnecdote)) {
+            $this->randomAnecdotes[] = $randomAnecdote;
+        }
+
+        return $this;
+    }
+
+    public function removeRandomAnecdote(Anecdote $randomAnecdote): self
+    {
+        $this->randomAnecdotes->removeElement($randomAnecdote);
 
         return $this;
     }
