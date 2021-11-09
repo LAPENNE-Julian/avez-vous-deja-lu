@@ -35,10 +35,14 @@ class UserType extends AbstractType
                 "label" => "Image",
             ])
             ->add('roles', ChoiceType::class, [
-                "label" => "Roles",
+                "label" => "Roles",'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter a role',
+                    ])
+                    ],
                 'choices' => [
-                    'Admin' => "ROLE_ADMIN",
-                    'User' => "ROLE_USER",
+                    'User' => 'ROLE_USER',
+                    'Admin' => 'ROLE_ADMIN',
                 ],
                 'multiple' => true,
                 'expanded' => true,

@@ -122,6 +122,14 @@ class UserController extends AbstractController
                 $user->setPassword($hashedPassword);
             }
 
+            //get role submitted in user form
+            $roleChoice = $request->request->get('user')['roles'];
+            //if role submitted  is Admin
+            if($roleChoice[0] == "ROLE_ADMIN"){
+                //set roles Admin and User for an Admin
+                $user->setRoles(['ROLE_USER','ROLE_ADMIN']);
+            }
+
             // Persist the new object user
             $entityManager->persist($user);
             //EntityManager edit the user object in database
