@@ -231,7 +231,7 @@ class AnecdoteController extends AbstractController
     {
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
@@ -275,7 +275,7 @@ class AnecdoteController extends AbstractController
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
@@ -294,7 +294,7 @@ class AnecdoteController extends AbstractController
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
