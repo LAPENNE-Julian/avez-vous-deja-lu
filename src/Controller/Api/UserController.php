@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
+use App\Utils\ApiNavigationAnecdote;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     /**
-     * @Route("", name="read", methods={"GET"})
+     * @Route("", name="read", methods={"GET","POST"})
      */
     public function read(UserRepository $userRepository, Request $request, SerializerInterface $serializer): Response
     {    
@@ -118,9 +119,9 @@ class UserController extends AbstractController
     /**
      * Navigation to next in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/next", name="latestNext", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/next", name="favorite_next", methods={"GET"})
      */
-    public function favoriteNext(int $userId, int $anecdoteId, userRepository $userRepository): Response
+    public function favoriteNext(int $userId, int $anecdoteId, userRepository $userRepository, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);
@@ -133,39 +134,30 @@ class UserController extends AbstractController
         //get all favorite anecdotes for user
         $favoriteAnecdotesList = $user->getFavorite();
 
-        //get key and informations foreach anecdotes in list
-        foreach ($favoriteAnecdotesList as $key => $anecdote){
-            //count key in array
-            $indexMax = count($favoriteAnecdotesList) - 1;
-            //get anecdote id in list
-            $favoriteAnecdoteId = $anecdote->getId();
+        $nextAnecdote = $apiNavigationAnecdote->next($favoriteAnecdotesList, $anecdoteId);
+
+            //if the anecdote id isn't exist in the $favoriteAnecdotesList
+            if ($nextAnecdote == false) {
+
+                $reponseAsArray = [
+                    'error' => true,
+                    'userMessage' => 'Resource not found',
+                    'message' => 'this anecdote isn\'t exist in user favorites'
+                ];
+        
+                return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
             
-            //if the request id is egal to one of the anecdotid in the loop
-            if($anecdoteId == $favoriteAnecdoteId){
-                //the current anecdote is set to the current key
-                $currentAnecdote = $favoriteAnecdotesList[$key];
 
-                //if the current anecdote key is up to the count array
-                if($currentAnecdote == $favoriteAnecdotesList[$indexMax]){
-                    //return at the beginning of the array
-                    $nextanecdote = $favoriteAnecdotesList[0]; 
-
-                }else{
-                    //pass to the next ocurence array
-                    $nextanecdote = $favoriteAnecdotesList[$key + 1];
-                }      
-            }    
-        }
-
-        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
      * Navigation to previous in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/prev", name="latestNext", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/prev", name="favorite_previous", methods={"GET"})
      */
-    public function favoritePrev(int $userId, int $anecdoteId, UserRepository $userRepository): Response
+    public function favoritePrev(int $userId, int $anecdoteId, UserRepository $userRepository, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
         //find user informations by userId
         $user = $userRepository->find($userId);
@@ -178,31 +170,21 @@ class UserController extends AbstractController
         //get all favorite anecdotes for user
         $favoriteAnecdotesList = $user->getFavorite();
 
-        //get key and informations foreach anecdotes in list
-        foreach ($favoriteAnecdotesList as $key => $anecdote){
-            //count key in array
-            $indexMax = count($favoriteAnecdotesList) - 1;
-            //get anecdote id in list
-            $favoriteAnecdoteId = $anecdote->getId();
-            
-            //if the request id is egal to one of the anecdotid in the loop.
-            if($anecdoteId == $favoriteAnecdoteId){
-                //the current anecdote is set to the current key.
-                $currentAnecdote = $favoriteAnecdotesList[$key];
+        $previousAnecdote = $apiNavigationAnecdote->previous($favoriteAnecdotesList, $anecdoteId);
 
-                //if the current anecdote key is at the beginning of the array
-                if($currentAnecdote == $favoriteAnecdotesList[0]){
-                    //return to the end of the array
-                    $nextanecdote = $favoriteAnecdotesList[$indexMax]; 
+            //if the anecdote id isn't exist in the $favoriteAnecdotesList
+            if ($previousAnecdote == false) {
 
-                }else{
-                    //pass to the previous ocurence array
-                    $nextanecdote = $favoriteAnecdotesList[$key - 1];
-                }      
-            }    
-        }
+                $reponseAsArray = [
+                    'error' => true,
+                    'userMessage' => 'Resource not found',
+                    'message' => 'this anecdote isn\'t exist in user favorites'
+                ];
+        
+                return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
-        return $this->json($nextanecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
