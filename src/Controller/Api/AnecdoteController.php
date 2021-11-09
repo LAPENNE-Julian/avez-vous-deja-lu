@@ -153,9 +153,20 @@ class AnecdoteController extends AbstractController
                 //random five anecdotes
                 $bestAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
             }
-            $anecdote = $anecdoteRepository->find($id);
 
-        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        //get informations foreach anecdotes.
+        foreach ($bestAnecdotes as $anecdote){
+            //get anecdote id
+            $anecdoteId = $anecdote->getId();
+
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($anecdoteId == $id){
+
+                $anecdote = $anecdoteRepository->find($id);
+
+               return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+            }
+        }
     
     }
 
@@ -231,10 +242,20 @@ class AnecdoteController extends AbstractController
     public function latestRead(int $id, AnecdoteRepository $anecdoteRepository): Response
     {
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
- 
-        $anecdote = $anecdoteRepository->find($id);
 
-        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        //get informations foreach anecdotes.
+        foreach ($latestAnecdotes as $anecdote){
+            //get anecdote id
+            $anecdoteId = $anecdote->getId();
+
+            //if the request id is egal to one of the anecdote id in the loop.
+            if($anecdoteId == $id){
+
+                $anecdote = $anecdoteRepository->find($id);
+
+               return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+            }
+        }
     
     }
 
