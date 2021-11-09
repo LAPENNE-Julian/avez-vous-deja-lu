@@ -125,16 +125,38 @@ class AnecdoteController extends AbstractController
     {
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
+
             //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
 
                 //random five anecdotes
                 $randomAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
                 
-                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+                return $this->json($randomAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
             }
 
-        return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($bestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Read an best anecdote by id.
+     * 
+     * @Route("/best/{id}", name="best_read", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function bestRead(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        //get an array of five anecdotes with the most upVote
+        $bestAnecdotes = $anecdoteRepository->findByupVote();
+
+            //if haven't five anecdotes with upVote
+            if (count($bestAnecdotes) !== 5) {
+                //random five anecdotes
+                $bestAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
+            }
+            $anecdote = $anecdoteRepository->find($id);
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    
     }
 
     /**
@@ -199,6 +221,21 @@ class AnecdoteController extends AbstractController
         $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
         return $this->json($latestAnecdotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Read an best anecdote by id.
+     * 
+     * @Route("/latest/{id}", name="latest_read", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function latestRead(int $id, AnecdoteRepository $anecdoteRepository): Response
+    {
+        $latestAnecdotes = $anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
+ 
+        $anecdote = $anecdoteRepository->find($id);
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    
     }
 
     /**
