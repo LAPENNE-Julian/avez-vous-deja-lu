@@ -68,6 +68,9 @@ class UserController extends AbstractController
             AbstractNormalizer::OBJECT_TO_POPULATE => $user
         ]);
 
+        //remove whitespace in password
+        $user->setPassword(trim($user->getPassword()));
+
         // validation
         $errors = $validator->validate($user);
 

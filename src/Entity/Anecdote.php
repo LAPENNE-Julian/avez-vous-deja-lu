@@ -32,7 +32,7 @@ class Anecdote
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"api_anecdote_browse"})
+     * @Groups("api_anecdote_browse")
      */
     private $description;
 
@@ -128,7 +128,7 @@ class Anecdote
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
 
@@ -152,7 +152,7 @@ class Anecdote
         return $this->content;
     }
 
-    public function setContent(string $content): self
+    public function setContent(?string $content): self
     {
         $this->content = $content;
 

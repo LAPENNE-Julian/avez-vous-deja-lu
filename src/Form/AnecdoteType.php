@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AnecdoteType extends AbstractType
 {
@@ -19,13 +20,21 @@ class AnecdoteType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                "label" => "Title",
+                "label" => "Title", 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter a title',
+                    ])
+                    ],
             ])
             ->add('description', TextType::class, [
                 "label" => "Description",
             ])
             ->add('content', TextareaType::class, [
-                "label" => "Content",
+                "label" => "Content", 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter a content',
+                    ])
+                    ],
                 "attr" => ['class' => 'row'],
             ])
             ->add('source', UrlType::class, [
@@ -36,7 +45,11 @@ class AnecdoteType extends AbstractType
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
-                'label' => 'Categories',
+                'label' => 'Categories', 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter a category',
+                    ])
+                    ],
                 'expanded' => true,
                 'multiple' => true,
             ])

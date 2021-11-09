@@ -119,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->downVote = new ArrayCollection();
         $this->known = new ArrayCollection();
         $this->unknown = new ArrayCollection();
-        $this->roles[] = 'ROLE_USER';
+        $this->roles[] = "ROLE_USER";
 
     }
 
@@ -160,7 +160,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -383,7 +383,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    public function setRoles(array $roles): self
+    public function setRoles(?array $roles): self
     {
         $this->roles = $roles;
 

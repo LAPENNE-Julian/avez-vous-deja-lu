@@ -53,6 +53,7 @@ class CategoryController extends AbstractController
      */
     public function edit(Request $request, Category $category,SluggerInterface $slugger ): Response
     {
+
         // Create a form for category edition
         $categoryForm = $this->createForm(CategoryType::class, $category);
 
@@ -71,7 +72,7 @@ class CategoryController extends AbstractController
             //slug categoryName
             $categoryNameSlug = $slugger->slug(strtolower($categoryName));
             //set the slug property of the category object
-            $categorySlug = $category->setSlug($categoryNameSlug);
+            $category->setSlug($categoryNameSlug);
 
             //EntityManager edit the category object in database
             $entityManager->flush();
