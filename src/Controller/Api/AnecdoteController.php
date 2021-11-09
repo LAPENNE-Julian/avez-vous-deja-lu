@@ -125,7 +125,6 @@ class AnecdoteController extends AbstractController
     {
         $bestAnecdotes = $anecdoteRepository->findByupVote();
 
-
             //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
 
@@ -161,13 +160,15 @@ class AnecdoteController extends AbstractController
 
             //if the request id is egal to one of the anecdote id in the loop.
             if($anecdoteId == $id){
-
+                //find all informations of the anecdote by id
                 $anecdote = $anecdoteRepository->find($id);
 
                return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
             }
         }
-    
+
+        //if the anecdote id isn't exist in the $bestAnecdote
+        return $this->getNotFoundResponse();
     }
 
     /**
@@ -250,13 +251,15 @@ class AnecdoteController extends AbstractController
 
             //if the request id is egal to one of the anecdote id in the loop.
             if($anecdoteId == $id){
-
+                //find all informations of the anecdote by id
                 $anecdote = $anecdoteRepository->find($id);
 
                return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
             }
         }
-    
+
+        //if the anecdote id isn't exist in the $latestAnecdote
+        return $this->getNotFoundResponse();
     }
 
     /**
