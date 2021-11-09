@@ -35,6 +35,9 @@ class RegistrationController extends AbstractController
       
         $newUser = $serializer->deserialize($jsonContent, User::class, 'json');
        
+        //remove password whitespace
+        $newUser->setPassword(trim($newUser->getPassword()));
+
         // validation des données
         $errors = $validator->validate($newUser);
        

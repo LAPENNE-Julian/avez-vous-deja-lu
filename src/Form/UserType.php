@@ -28,6 +28,7 @@ class UserType extends AbstractType
                 "label" => "Password",'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a password',
+                        'normalizer' => 'trim'
                     ])
                     ],
                 'required' => true,

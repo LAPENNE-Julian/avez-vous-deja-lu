@@ -29,7 +29,13 @@ class RegistrationController extends AbstractController
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface): Response
     {
         $user = new User();
+
+        $user->setPassword(trim($user->getPassword()));
+
         $form = $this->createForm(RegistrationFormType::class, $user);
+
+        //remove whitespace in password
+
         $form->handleRequest($request);
 
         
