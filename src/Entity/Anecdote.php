@@ -32,7 +32,7 @@ class Anecdote
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"api_anecdote_browse"})
+     * @Groups("api_anecdote_browse")
      */
     private $description;
 

@@ -29,7 +29,8 @@ class UserType extends AbstractType
                     new NotBlank([
                         'message' => 'Please enter a password',
                     ])
-                ]
+                    ],
+                'required' => true,
             ])
             ->add('img', null, [
                 "label" => "Image",
