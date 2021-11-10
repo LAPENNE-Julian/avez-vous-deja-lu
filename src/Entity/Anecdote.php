@@ -107,6 +107,11 @@ class Anecdote
      */
     private $category;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="randomAnecdotes")
+     */
+    private $randomUsers;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -116,6 +121,7 @@ class Anecdote
         $this->knownUsers = new ArrayCollection();
         $this->unknownUsers = new ArrayCollection();
         $this->category = new ArrayCollection();
+        $this->randomUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -377,4 +383,32 @@ class Anecdote
 
         return $this;
     }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getRandomUsers(): Collection
+    {
+        return $this->randomUsers;
+    }
+
+    public function addRandomUser(User $randomUser): self
+    {
+        if (!$this->randomUsers->contains($randomUser)) {
+            $this->randomUsers[] = $randomUser;
+            $randomUser->addRandomAnecdote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRandomUser(User $randomUser): self
+    {
+        if ($this->randomUsers->removeElement($randomUser)) {
+            $randomUser->removeRandomAnecdote($this);
+        }
+
+        return $this;
+    }
+
 }

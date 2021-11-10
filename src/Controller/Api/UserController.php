@@ -22,10 +22,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class UserController extends AbstractController
 {
+    private $userRepository;
+    
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     /**
      * @Route("", name="read", methods={"GET","POST"})
      */
-    public function read(UserRepository $userRepository, Request $request, SerializerInterface $serializer): Response
+    public function read(Request $request, SerializerInterface $serializer): Response
     {    
         //get Json content (user email)
         $jsonContent = $request->getContent();
@@ -37,7 +44,7 @@ class UserController extends AbstractController
         $email = $userInSession->getEmail();
 
         //Find user informations by email
-        $user = $userRepository->findByEmail($email);
+        $user = $this->userRepository->findByEmail($email);
 
         //if the user email isn't exist
         if (is_null($user)) {
@@ -48,12 +55,12 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
+     * @Route("/{userId}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
      */
-    public function edit(int $id, UserRepository $userRepository, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function edit(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($id);
+        $user = $this->userRepository->find($userId);
 
         //if the user id isn't exist.
         if (is_null($user)) {
@@ -98,12 +105,12 @@ class UserController extends AbstractController
     /**
      * List of favorite anecdotes user.
      * 
-     * @Route("/{id}/favorite", name="favorite_browse", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/{userId}/favorite", name="favorite_browse", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function favoriteBrowse(int $id, UserRepository $userRepository): Response
+    public function favoriteBrowse(int $userId): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($id);
+        $user = $this->userRepository->find($userId);
 
         //if the user id isn't exist.
         if (is_null($user)) {
@@ -121,10 +128,10 @@ class UserController extends AbstractController
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/next", name="favorite_next", methods={"GET"})
      */
-    public function favoriteNext(int $userId, int $anecdoteId, userRepository $userRepository, ApiNavigationAnecdote $apiNavigationAnecdote): Response
+    public function favoriteNext(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($userId);
+        $user = $this->userRepository->find($userId);
 
         //if the user id isn't exist
         if (is_null($user)) {
@@ -148,7 +155,6 @@ class UserController extends AbstractController
                 return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
             }
             
-
         return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
@@ -157,10 +163,10 @@ class UserController extends AbstractController
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/prev", name="favorite_previous", methods={"GET"})
      */
-    public function favoritePrev(int $userId, int $anecdoteId, UserRepository $userRepository, ApiNavigationAnecdote $apiNavigationAnecdote): Response
+    public function favoritePrev(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($userId);
+        $user = $this->userRepository->find($userId);
 
         //if the user id isn't exist.
         if (is_null($user)) {
@@ -192,10 +198,10 @@ class UserController extends AbstractController
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"GET","PATCH"})
      */
-    public function favoriteAdd(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    public function favoriteAdd(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($userId);
+        $user = $this->userRepository->find($userId);
         //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
@@ -225,22 +231,23 @@ class UserController extends AbstractController
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"GET","PATCH"})
      */
-    public function favoriteDelete(int $userId, int $anecdoteId,UserRepository $userRepository, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    public function favoriteDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
-        $user = $userRepository->find($userId);
+        $user = $this->userRepository->find($userId);
         //if the user id isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
         //find anecdote informations by anecdoteId
-        $favoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+        $anecdote = $anecdoteRepository->find($anecdoteId);
         //if the anecdote id isn't exist
-        if (is_null($favoriteAnecdote)) {
+        if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
-        $user->removeFavorite($favoriteAnecdote);
+        //Delete the favorite anecdote
+        $user->removeFavorite($anecdote);
 
         //EntityManager edit the user object in database
         $entityManager->flush($user);
@@ -252,7 +259,226 @@ class UserController extends AbstractController
         return $this->json($reponseAsArray, Response::HTTP_OK );
     }
 
+    /**
+     * Get random anecdotes, and add in random anecdotes user list.
+     * 
+     * @Route("/{userId}/random", name="random",  methods={"GET","PATCH"})
+     */
+    public function random(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
 
+        //get all anecdotes informations
+        $allAnecdotes = $anecdoteRepository->findAll();
+        //count all anecdotes in database
+        $anecdotesIndex = count($allAnecdotes);
+        //random in count index
+        $randomIndex = rand(1, $anecdotesIndex);
+
+        //get an anecdote random
+        $anecdote = $anecdoteRepository->find($randomIndex);
+
+        //if historical random anecdotes have five anecdotes, the user have to delete anecdote
+        if(count($user->getRandomAnecdotes()) > 4){
+
+            $responseAsArray = [
+                'message' => 'Your random anecdote history is full, please delete anecdotes to get new random in your history',
+                'anecdote' => $anecdote,
+            ];
+            return $this->json($responseAsArray, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+
+        }
+        //add the random anecdote to the user profil
+        $user->addRandomAnecdote($anecdote);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * List of random anecdotes in user historical.
+     * 
+     * @Route("/{userId}/random/anecdote", name="random_browse", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function randomBrowse(int $userId): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of favorite anecdotes user
+        $randomAnecdotesList = $user->getRandomAnecdotes();
+
+        //if random anecdote historical is empty
+        if (count($randomAnecdotesList) == 0) {
+            $responseAsArray = [
+                'message' => 'you did not draw lots of anecdote',
+            ];
+            return $this->json($responseAsArray, Response::HTTP_OK);
+        }
+
+        return $this->json($randomAnecdotesList, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * Get navigation to next anecdote in user random anecdotes historical.
+     * 
+     * @Route("/{userId}/random/{anecdoteId}/next", name="random_next",  methods={"GET"})
+     * 
+     */
+    public function randomNext(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all random anecdotes in user profil
+        $randomAnecdotesList = $user->getRandomAnecdotes();
+
+        $nextAnecdote = $apiNavigationAnecdote->next($randomAnecdotesList, $anecdoteId);
+
+            //if the anecdote id isn't exist in the $favoriteAnecdotesList
+            if ($nextAnecdote == false) {
+
+                $reponseAsArray = [
+                    'error' => true,
+                    'userMessage' => 'Resource not found',
+                    'message' => 'this anecdote isn\'t exist in user random historical'
+                ];
+        
+                return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Get navigation to previous anecdote in user random anecdotes historical.
+     * 
+     * @Route("/{userId}/random/{anecdoteId}/prev", name="random_previous",  methods={"GET"})
+     */
+    public function randomPrevious(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all random anecdotes in user profil
+        $randomAnecdotesList = $user->getRandomAnecdotes();
+
+        $previousAnecdote = $apiNavigationAnecdote->previous($randomAnecdotesList, $anecdoteId);
+
+            //if the anecdote id isn't exist in the $favoriteAnecdotesList
+            if ($previousAnecdote == false) {
+
+                $reponseAsArray = [
+                    'error' => true,
+                    'userMessage' => 'Resource not found',
+                    'message' => 'this anecdote isn\'t exist in user random historical'
+                ];
+        
+                return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * method which delete one random anecdote
+     * 
+     * @Route("/{userId}/random/{anecdoteId}/delete", name="random_delete", methods={"GET","PATCH"})
+     */
+    public function randomDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+        //find anecdote informations by anecdoteId
+        $anecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //Delete the anecdote in random anecdotes historical
+        $user->removeRandomAnecdote($anecdote);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $reponseAsArray = [
+            'message' => 'random anecdote delete in your historical'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_OK );
+    }
+
+    /**
+     * method which delete one random anecdote
+     * 
+     * @Route("/{userId}/random/delete/all", name="random_delete_all", methods={"GET","PATCH"})
+     */
+    public function randomDeleteAll(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+        //get all random anecdotes in user profil
+        $randomAnecdotesList = $user->getRandomAnecdotes();
+
+        //if random anecdote historical is empty
+        if (count($randomAnecdotesList) == 0) {
+            $responseAsArray = [
+                'message' => 'Your random anecdote history is null, nothing to delete',
+            ];
+            return $this->json($responseAsArray, Response::HTTP_OK);
+        }
+
+        foreach($randomAnecdotesList as $anecdote){
+            //get anecdote id in historical random anecdotes list
+            $anecdoteId= $anecdote->getId();
+
+            //find anecdote informations by anecdoteId
+            $anecdote = $anecdoteRepository->find($anecdoteId);
+
+            //delete the anecdote in random anecdotes historical
+            $user->removeRandomAnecdote($anecdote);
+        }
+        
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $reponseAsArray = [
+            'message' => 'all random anecdotes delete in your historical'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_OK );
+    }
 
     /**
      * Return informations for not found response.
