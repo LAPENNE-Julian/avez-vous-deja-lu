@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 use function PHPSTORM_META\type;
@@ -37,7 +38,17 @@ class UserType extends AbstractType
             ->add('img', FileType::class, [
                 'label' => 'Avatar',
                 'mapped' => false,
-                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '200k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/svg',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image',
+                        ])
+                    ],
             ])
             ->add('roles', ChoiceType::class, [
                 "label" => "Roles",'constraints' => [

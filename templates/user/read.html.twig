@@ -23,8 +23,8 @@
       <p> {{user.pseudo}}</p>
     <h4>Email</h4>
       <p>{{user.email}}</p>
-    <h4>Picture</h4>
-      <img src="{{user.img}}">
+    <h4>Avatar</h4>
+      <img src="{{ asset("uploads/") ~ user.img }}">
   </section>
   
 </div>
