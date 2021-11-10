@@ -6,6 +6,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -33,8 +34,10 @@ class UserType extends AbstractType
                     ],
                 'required' => true,
             ])
-            ->add('img', null, [
-                "label" => "Image",
+            ->add('img', FileType::class, [
+                'label' => 'Avatar',
+                'mapped' => false,
+                'required' => false,
             ])
             ->add('roles', ChoiceType::class, [
                 "label" => "Roles",'constraints' => [
