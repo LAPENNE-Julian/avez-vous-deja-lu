@@ -9,11 +9,13 @@ use App\Utils\ApiNavigationAnecdote;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -57,7 +59,7 @@ class UserController extends AbstractController
     /**
      * @Route("/{userId}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
      */
-    public function edit(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function edit(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);
@@ -90,6 +92,49 @@ class UserController extends AbstractController
             ];
 
             return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        /** @var UploadedFile $img */
+        $stringFromFront = $user->getImg();
+        $pathToFile = 'uploads/';
+
+        $stringFromFront = str_replace(' ', '+', $stringFromFront);
+        $decoded = base64_decode($stringFromFront);
+        $file = fopen($pathToFile, 'wb');
+        fwrite($file, $decoded);
+        fclose($file);
+
+        dd($decoded);
+
+        $avatar = $decoded;
+
+        // this condition is needed because the 'img' field is not required
+        // so the image file must be processed only when a file is uploaded
+        if ($avatar) {
+            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
+            // this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($originalFilename);
+            
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+
+            // Move the file to the directory where avatars are stored
+            try {
+                $avatar->move(
+                    $this->getParameter('avatar_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                // ... handle exception if something happens during file upload
+                
+            }
+
+            // updates the 'img' property to store the image file name
+            // instead of its contents
+            $user->setImg($newFilename);
+
+        } else {
+            //if no image file
+            $user->setImg('default-avatar.png');
         }
 
         //EntityManager edit the object in database
