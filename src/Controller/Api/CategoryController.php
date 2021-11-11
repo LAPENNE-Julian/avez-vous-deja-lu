@@ -49,6 +49,27 @@ class CategoryController extends AbstractController
     }
 
     /**
+     * Find category name by slugger.
+     * 
+     * @Route("/{categorySlug}/name", name="category_name_by_slugger", methods={"GET"})
+     * @IsGranted("ROLE_USER")
+     */
+    public function findCategoryNameBySlug(string $categorySlug, CategoryRepository $categoryRepository): Response
+    {
+        //get all informations category for category slug request 
+        $category = $categoryRepository->findCategoryNameBySlug($categorySlug);
+
+            if (is_null($category)) {
+                return $this->getNotFoundResponse();
+            }
+       
+        //get the name of the category
+        $categoryName = $category->getName();
+
+        return $this->json($categoryName, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
      * Navigation to next in anecdote list by category.
      * 
      * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="next_anecdote", methods={"GET"})

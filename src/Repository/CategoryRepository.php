@@ -61,5 +61,19 @@ class CategoryRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * returns all infomation of category by category slug
+    * @return Category Returns an category object
+    */
+    public function findCategoryNameBySlug($categorySlug)
+    {
+        $dql = "SELECT c FROM App\Entity\Category c WHERE c.slug =". " '$categorySlug' ";
+    
+        $query = $this->getEntityManager()->createQuery($dql);
+        $result = $query->execute();
+
+        return $result;
+    }
     
 }
