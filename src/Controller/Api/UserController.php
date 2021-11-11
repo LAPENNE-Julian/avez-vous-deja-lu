@@ -71,7 +71,6 @@ class UserController extends AbstractController
 
         //get Json content
         $jsonContent = $request->getContent();
-
         //deserialize Json content for User entity
         $serializer->deserialize($jsonContent, User::class, 'json',[
             AbstractNormalizer::OBJECT_TO_POPULATE => $user
@@ -94,48 +93,81 @@ class UserController extends AbstractController
             return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        /** @var UploadedFile $img */
-        $stringFromFront = $user->getImg();
-        $pathToFile = 'uploads/';
+        //EntityManager edit the object in database
+        $entityManager->flush();
+        
+        $reponseAsArray = [
+            'message' => 'user update'
+        ];
 
-        $stringFromFront = str_replace(' ', '+', $stringFromFront);
-        $decoded = base64_decode($stringFromFront);
-        $file = fopen($pathToFile, 'wb');
-        fwrite($file, $decoded);
-        fclose($file);
+        return $this->json($reponseAsArray, Response::HTTP_CREATED);
+    }
 
-        dd($decoded);
+    /**
+     * @Route("/{userId}/edit/img", name="edit_img", methods={"PATCH"}, requirements={"id"="\d+"})
+     */
+    public function editImg(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
 
-        $avatar = $decoded;
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get Json content
+        $jsonContent = $request->getContent();
+        //deserialize Json content for User entity
+        $serializer->deserialize($jsonContent, User::class, 'json',[
+            AbstractNormalizer::OBJECT_TO_POPULATE => $user
+        ]);
+
+        // validation
+        $errors = $validator->validate($user);
+
+        //if errors
+        if(count($errors) > 0)
+        {
+            $reponseAsArray = [
+                'error' => true,
+                'message' => $errors,
+            ];
+
+            return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        //get base64 string fot the user avatar
+        $my_base64_string = $user->getImg();
 
         // this condition is needed because the 'img' field is not required
         // so the image file must be processed only when a file is uploaded
-        if ($avatar) {
-            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
-            // this is needed to safely include the file name as part of the URL
-            $safeFilename = $slugger->slug($originalFilename);
-            
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+        if($my_base64_string){
 
-            // Move the file to the directory where avatars are stored
-            try {
-                $avatar->move(
-                    $this->getParameter('avatar_directory'),
-                    $newFilename
-                );
-            } catch (FileException $e) {
-                // ... handle exception if something happens during file upload
-                
+            //get the base path url
+            $pathDirectory = $this->getParameter('avatar_directory').'/';
+
+            //name the image file
+            $fileName = $user->getPseudo();
+            // this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($fileName);
+            $newFilename = $pathDirectory . $safeFilename.'-'.uniqid(). '.jpg';
+
+            function base64_to_jpeg($base64_string, $output_file ) {
+
+                $ifp = fopen( $output_file, "wb" ); 
+                fwrite( $ifp, base64_decode( $base64_string) ); 
+                fclose( $ifp ); 
+                return( $output_file ); 
             }
+    
+            $image = base64_to_jpeg($my_base64_string, $newFilename);
 
             // updates the 'img' property to store the image file name
             // instead of its contents
-            $user->setImg($newFilename);
+            $user->setImg($image);
 
-        } else {
-            //if no image file
-            $user->setImg('default-avatar.png');
-        }
+        } 
 
         //EntityManager edit the object in database
         $entityManager->flush();
