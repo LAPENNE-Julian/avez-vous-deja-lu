@@ -124,6 +124,58 @@ class UserController extends AbstractController
     }
 
     /**
+     * Check if the anecdote is a favorite anecdote User.
+     * 
+     * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function favoriteCheck(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find anecdote informations by anecdoteId
+        $anecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist.
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of favorite anecdotes user
+        $userFavorites = $user->getFavorite();
+
+        foreach($userFavorites as $anecdote){
+            //get anecdote Id in the user favorites list
+            $anecdoteIdInUserFavoritesList = $anecdote->getId();
+
+            //Check if the anecdoteId request is in the Id list
+            if($anecdoteId == $anecdoteIdInUserFavoritesList){
+
+                $response = [
+                    'response' => true,
+                    'userMessage' => 'This anecdote is in your favorite',
+                ];
+
+                return $this->json($response, Response::HTTP_OK);
+
+            } else {
+
+                $response = [
+                    'response' => false,
+                    'userMessage' => 'This anecdote isn\'t in your favorite',
+                ];
+
+            }
+
+        }
+
+        return $this->json($response, Response::HTTP_OK);
+    }
+
+    /**
      * Navigation to next in list of favorite anecdotes.
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/next", name="favorite_next", methods={"GET"})

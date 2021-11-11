@@ -50,7 +50,7 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * returns all anecdotes by category
-    * @return Anecdote[] Returns an array of Anecdote objects
+    * @return Anecdote[] Return an array of Anecdote objects
     */
     public function findByCategory($categorySlug)
     {
@@ -63,8 +63,8 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * returns all infomation of category by category slug
-    * @return Category Returns an category object
+     * returns all informations of category by category slug
+    * @return Category Return an category object
     */
     public function findCategoryNameBySlug($categorySlug)
     {
