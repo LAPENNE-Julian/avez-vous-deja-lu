@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
+use App\Utils\ApiBase64ToImg;
 use App\Utils\ApiNavigationAnecdote;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
@@ -106,7 +107,7 @@ class UserController extends AbstractController
     /**
      * @Route("/{userId}/edit/img", name="edit_img", methods={"PATCH"}, requirements={"id"="\d+"})
      */
-    public function editImg(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function editImg(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger, ApiBase64ToImg $apiBase64ToImg): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);
@@ -123,7 +124,7 @@ class UserController extends AbstractController
             AbstractNormalizer::OBJECT_TO_POPULATE => $user
         ]);
 
-        // validation
+        //validation
         $errors = $validator->validate($user);
 
         //if errors
@@ -140,34 +141,21 @@ class UserController extends AbstractController
         //get base64 string fot the user avatar
         $my_base64_string = $user->getImg();
 
-        // this condition is needed because the 'img' field is not required
-        // so the image file must be processed only when a file is uploaded
-        if($my_base64_string){
+        //get the base path url
+        $pathDirectory = $this->getParameter('avatar_directory').'/';
 
-            //get the base path url
-            $pathDirectory = $this->getParameter('avatar_directory').'/';
+        //name the image file
+        $fileName = $user->getPseudo();
+        // this is needed to safely include the file name as part of the URL
+        $safeFilename = $slugger->slug($fileName);
+        $newFilename = $pathDirectory . $safeFilename.'-'.uniqid(). '.jpg';
 
-            //name the image file
-            $fileName = $user->getPseudo();
-            // this is needed to safely include the file name as part of the URL
-            $safeFilename = $slugger->slug($fileName);
-            $newFilename = $pathDirectory . $safeFilename.'-'.uniqid(). '.jpg';
+        //Use ApiBase64ToImg Service for convert the base 64 string to img
+        $apiBase64ToImg->convertToImg($my_base64_string, $newFilename);
 
-            function base64_to_jpeg($base64_string, $output_file ) {
-
-                $ifp = fopen( $output_file, "wb" ); 
-                fwrite( $ifp, base64_decode( $base64_string) ); 
-                fclose( $ifp ); 
-                return( $output_file ); 
-            }
-    
-            $image = base64_to_jpeg($my_base64_string, $newFilename);
-
-            // updates the 'img' property to store the image file name
-            // instead of its contents
-            $user->setImg($image);
-
-        } 
+        // updates the 'img' property to store the image file name
+        // instead of its contents
+        $user->setImg($newFilename);
 
         //EntityManager edit the object in database
         $entityManager->flush();
