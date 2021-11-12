@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @Route("/backoffice/user", name="backoffice_user_")
@@ -53,7 +54,7 @@ class UserController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
-    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
+    public function edit(File $file, Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         //create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
@@ -91,6 +92,7 @@ class UserController extends AbstractController
         // this condition is needed because the 'img' field is not required
         // so the image file must be processed only when a file is uploaded
         if ($avatar) {
+            
             $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
             // this is needed to safely include the file name as part of the URL
             $safeFilename = $slugger->slug($originalFilename);
@@ -117,13 +119,16 @@ class UserController extends AbstractController
             $user->setImg($userImageUrl);
 
         } else { 
-            //if no image file
-            //get the base path url
-            $pathDirectory = $this->getParameter('avatar_directory');
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+            //if user img is null, set an image by default
+            if($user->getImg() == null){
+                //if no image file
+                //get the base path url
+                $pathDirectory = $this->getParameter('avatar_directory');
+                //get http host
+                $server = $_SERVER['HTTP_HOST'];
+                //set the url of the user image
+                $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+            }
         }
             
             //EntityManager edit the user object in database
@@ -249,9 +254,9 @@ class UserController extends AbstractController
         //post a flash message in the view
         $this->addFlash('success', "User {$user->getId()} deleted successfully");
 
-        //delete the anecdote
+        //delete the user
         $entityManager->remove($user);
-        //EntityManager delete the anecdote object in database
+        //EntityManager delete the user object in database
         $entityManager->flush();
 
         //redirection after delete

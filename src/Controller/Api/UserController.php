@@ -130,6 +130,9 @@ class UserController extends AbstractController
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        $userImgDefault = 'http://' . $server . 'default-avatar.png';
 
         //get Json content
         $jsonContent = $request->getContent();
@@ -158,11 +161,11 @@ class UserController extends AbstractController
         //get the base path url
         $pathDirectory = $this->getParameter('avatar_directory');
 
-        //name the image file
+        //name the image file, pseudo user (unique) delete the older user img
         $fileName = $user->getPseudo();
         // this is needed to safely include the file name as part of the URL
         $safeFilename = $slugger->slug($fileName);
-        $newFilename = $pathDirectory . $safeFilename.'-'.uniqid(). '.jpg';
+        $newFilename = $pathDirectory . $safeFilename . '-' . '.jpg';
 
         //Use ApiBase64ToImg Service for convert the base 64 string to img
         $apiBase64ToImg->convertToImg($myBase64String, $newFilename);
@@ -434,7 +437,6 @@ class UserController extends AbstractController
 
         return $this->json($userKnown, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
-
 
     /**
      * List of unknown anecdotes user.
