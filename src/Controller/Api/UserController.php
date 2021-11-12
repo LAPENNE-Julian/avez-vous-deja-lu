@@ -59,11 +59,11 @@ class UserController extends AbstractController
         //get http host
         $server = $_SERVER['HTTP_HOST'];
         //set the url of the user image
-        $url = 'http://' .$server. $image ;
+        $userImageUrl = 'http://' .$server. $image ;
 
         $responseAsArray = [
             'user' => $user,
-            'img_url' => $url,
+            'img_url' => $userImageUrl,
         ];
 
         return $this->json($responseAsArray, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
