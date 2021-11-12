@@ -21,48 +21,48 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class CategoryController extends AbstractController
 {
     /**
-     * function which list categories
+     * Function which list categories.
      * 
      * @Route("/", name="browse", methods={"GET"})
      */
     public function browse(CategoryRepository $categoryRepository): Response
     {
-        // transfert informations to the view
+        //transfert informations to the view
         return $this->render('category/browse.html.twig', [
             'category_list' => $categoryRepository->findAll(),
         ]);
     }
 
     /**
-     * method which read one category
+     * Method which read one category.
      * 
      * @Route("/read/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function read($id, CategoryRepository $categoryRepository): Response
     {
-        // transfert informations to the view
+        //transfert informations to the view
         return $this->render('category/read.html.twig', [
             'category' => $categoryRepository->find($id),
         ]);
     }
 
     /**
-     * method which edit one category
+     * Method which edit one category.
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
     public function edit(Request $request, Category $category,SluggerInterface $slugger ): Response
     {
 
-        // Create a form for category edition
+        //create a form for category edition
         $categoryForm = $this->createForm(CategoryType::class, $category);
 
-        // Handle listener for category form
+        //handle listener for category form
         $categoryForm->handleRequest($request);
 
         if ($categoryForm->isSubmitted() && $categoryForm->isValid()) {
-            // If the form is submitted and valid
-            // Use EntityManager
+            //if the form is submitted and valid
+            //use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
 
             $category->setUpdatedAt(new DateTimeImmutable());
@@ -77,14 +77,14 @@ class CategoryController extends AbstractController
             //EntityManager edit the category object in database
             $entityManager->flush();
 
-            // Post a flash message in the view
+            //post a flash message in the view
             $this->addFlash('success', "The category `{$category->getName()}` is update");
 
-            // Redirection after update
+            //redirection after update
             return $this->redirectToRoute('backoffice_category_browse');
         }
 
-        // Transfert the form to the view
+        //transfert the form to the view
         return $this->render('category/add.edit.html.twig', [
             'category_form' => $categoryForm->createView(),
             'category' => $category,
@@ -92,7 +92,7 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * method which add one category
+     * Method which add one category.
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
@@ -100,15 +100,15 @@ class CategoryController extends AbstractController
     {
         $category = new Category();
 
-        // Create a virgin form (because the object is empty)
+        //create a virgin form (because the object is empty)
         $categoryForm = $this->createForm(CategoryType::class, $category);
 
-        // Handle listerner for category form
+        //handle listerner for category form
         $categoryForm->handleRequest($request);
 
         if ($categoryForm->isSubmitted() && $categoryForm->isValid()) {
-            // If the form is submitted and valid
-            // Use EntityManager
+            //if the form is submitted and valid
+            //use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
 
             //get category name
@@ -118,40 +118,40 @@ class CategoryController extends AbstractController
             //set the slug property of the category object
             $categorySlug = $category->setSlug($categoryNameSlug);
 
-            // Persist the new object category
+            //persist the new object category
             $entityManager->persist($category);
             //EntityManager edit the category object in database
             $entityManager->flush();
 
-            // Post a flash message in the view
+            //post a flash message in the view
             $this->addFlash('success', "Category `{$category->getName()}` created successfully");
 
-            // redirection
+            //redirection
             return $this->redirectToRoute('backoffice_category_browse');
         }
 
-        // Transfert the form to the view
+        //transfert the form to the view
         return $this->render('category/add.edit.html.twig', [
             'category_form' => $categoryForm->createView(),
         ]);
     }
 
     /**
-     * method which delete one category
+     * Method which delete one category.
      * 
-     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"})
+     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"},requirements={"id"="\d+"})
      */
     public function delete(Category $category, EntityManagerInterface $entityManager): Response
     {
-        // Post a flash message in the view
+        //post a flash message in the view
         $this->addFlash('success', "category {$category->getId()} delete");
 
-        // Delete the category
+        //delete the category
         $entityManager->remove($category);
         //EntityManager delete the category object in database
         $entityManager->flush();
 
-        // Redirection after delete
+        //redirection after delete
         return $this->redirectToRoute('backoffice_category_browse');
     }
 }

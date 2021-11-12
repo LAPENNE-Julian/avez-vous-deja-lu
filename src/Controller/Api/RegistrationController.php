@@ -64,12 +64,6 @@ class RegistrationController extends AbstractController
                 ->subject('Please Confirm your Email')
                 ->htmlTemplate('registration/confirmation_email.html.twig')
         );
-        // do anything else you need here, like send an email
-
-        // $reponseAsArray = [
-        //     'message' => 'Utilisateur enregistré',
-        //     'id' => $user->getId()
-        // ];
 
         $jsonResponse = [
             'message' => 'User created',
@@ -77,8 +71,6 @@ class RegistrationController extends AbstractController
 
         return $this->json($jsonResponse, Response::HTTP_CREATED);
     
-
-        //return $this->json(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /**
