@@ -84,6 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="upVoteUsers")
      * @ORM\JoinTable(name="upVote")
+     * @Groups("api_user_read")
      */
     private $upVote;
 
@@ -96,12 +97,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="knownUsers")
      * @ORM\JoinTable(name="known")
+     * @Groups("api_user_read")
      */
     private $known;
 
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="unknownUsers")
      * @ORM\JoinTable(name="unknown")
+     * @Groups("api_user_read")
      */
     private $unknown;
 

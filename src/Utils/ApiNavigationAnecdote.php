@@ -5,7 +5,7 @@ namespace App\Utils;
 use App\Entity\Anecdote;
 
 /**
- * Navigation to previous and next anecdote
+ * Navigation to previous and next anecdote.
  */
 class ApiNavigationAnecdote {
 
@@ -17,16 +17,16 @@ class ApiNavigationAnecdote {
      */
     public function next($array, int $id)
     {
-        //get key and informations foreach anecdotes.
+        //get key and informations foreach anecdotes
         foreach ($array as $key => $anecdote){
             //count key in array
             $indexMax = count($array) - 1;
             //get anecdote id
             $anecdoteId = $anecdote->getId();
             
-            //if the request id is egal to one of the anecdote id in the loop.
+            //if the request id is egal to one of the anecdote id in the loop
             if($id == $anecdoteId){
-                //the current anecdote is set to the current key.
+                //the current anecdote is set to the current key
                 $currentAnecdote = $array[$key];
 
                 //if the current anecdote key is up to the count array
@@ -58,16 +58,16 @@ class ApiNavigationAnecdote {
      */
     public function previous($array, int $id)
     {
-        //get key and informations foreach anecdotes.
+        //get key and informations foreach anecdotes
         foreach ($array as $key => $anecdote){
             //count key in array
             $indexMax = count($array) - 1;
             //get anecdote id
             $anecdoteId = $anecdote->getId();
             
-            //if the request id is egal to one of the anecdote id in the loop.
+            //if the request id is egal to one of the anecdote id in the loop
             if($id == $anecdoteId){
-                //the current anecdote is set to the current key.
+                //the current anecdote is set to the current key
                 $currentanecdote = $array[$key];
 
                 //if the current anecdote key is at the beginning array

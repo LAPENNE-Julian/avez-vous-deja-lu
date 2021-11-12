@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
 use App\Utils\ApiNavigationAnecdote;
+use App\Utils\ApiUserImageUrl;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,7 +52,7 @@ class AnecdoteController extends AbstractController
     {
         $anecdote = $this->anecdoteRepository->find($id);
 
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist 
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
@@ -67,15 +68,15 @@ class AnecdoteController extends AbstractController
      */
     public function readNext(int $id): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($id);
 
-        //if the anecdote id isn't exist. 
+        //if the anecdote id isn't exist
         if (is_null($anecdote)) {
             return $this->getNotFoundResponse();
         }
 
-        // find all anecdotes in database
+        //find all anecdotes in database
         $allAnecdotes = $this->anecdoteRepository->findAll();
        
         $nextAnecdote = $this->apiNavigationAnecdote->next($allAnecdotes, $id);
@@ -89,14 +90,14 @@ class AnecdoteController extends AbstractController
     }
 
     /**
-     * Navigation to read previous of all anecdotes
+     * Navigation to read previous of all anecdotes.
      * 
      * @Route("/{id}/prev", name="read_previous", methods={"GET"}, requirements={"id"="\d+"})
      * @IsGranted("ROLE_USER")
      */
-    public function readPrev(int $id): Response
+    public function readPrevious(int $id): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($id);
 
         //if the anecdote id isn't exist
@@ -104,7 +105,7 @@ class AnecdoteController extends AbstractController
             return $this->getNotFoundResponse();
         }
 
-        // find all anecdotes in database
+        //find all anecdotes in database
         $allAnecdotes = $this->anecdoteRepository->findAll();
 
         $previousAnecdote = $this->apiNavigationAnecdote->previous($allAnecdotes, $id);
@@ -154,12 +155,12 @@ class AnecdoteController extends AbstractController
                 $bestAnecdotes = $this->anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
             }
 
-        //get informations foreach anecdotes.
+        //get informations foreach anecdotes
         foreach ($bestAnecdotes as $anecdote){
             //get anecdote id
             $anecdoteId = $anecdote->getId();
 
-            //if the request id is egal to one of the anecdote id in the loop.
+            //if the request id is egal to one of the anecdote id in the loop
             if($anecdoteId == $id){
                 //find all informations of the anecdote by id
                 $anecdote = $this->anecdoteRepository->find($id);
@@ -203,7 +204,7 @@ class AnecdoteController extends AbstractController
      * 
      * @Route("/best/{id}/prev", name="best_previous", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function bestPrev(int $id): Response
+    public function bestPrevious(int $id): Response
     {
         //get an array of five anecdotes with the most upVote
         $bestAnecdotes = $this->anecdoteRepository->findByupVote();
@@ -245,12 +246,12 @@ class AnecdoteController extends AbstractController
     {
         $latestAnecdotes = $this->anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
-        //get informations foreach anecdotes.
+        //get informations foreach anecdotes
         foreach ($latestAnecdotes as $anecdote){
             //get anecdote id
             $anecdoteId = $anecdote->getId();
 
-            //if the request id is egal to one of the anecdote id in the loop.
+            //if the request id is egal to one of the anecdote id in the loop
             if($anecdoteId == $id){
                 //find all informations of the anecdote by id
                 $anecdote = $this->anecdoteRepository->find($id);
@@ -287,7 +288,7 @@ class AnecdoteController extends AbstractController
      * 
      * @Route("/latest/{id}/prev", name="latest_previous", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function latestPrev(int $id): Response
+    public function latestPrevious(int $id): Response
     {
         $latestAnecdotes = $this->anecdoteRepository->findBy([], ['createdAt' => 'DESC'], 5);
 
@@ -309,7 +310,7 @@ class AnecdoteController extends AbstractController
      */
     public function upVote(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($anecdoteId);
         //if the anecdote id isn't exist
         if (is_null($anecdote)) {
@@ -327,30 +328,29 @@ class AnecdoteController extends AbstractController
         $allDownVoters = $anecdote->getDownVoteUsers();
 
         foreach($allDownVoters as $userVoter){
-
+            //get user id
             $userVoterId = $userVoter->getId();
 
             //find user informations by userId
             $user = $userRepository->find($userId);
 
             if($userVoterId == $userId){
-                //remove user in DownVoteUsers anecdote
+                //remove user in downVoteUsers anecdote
                 $anecdote->removeDownVoteUser($user);
-            }
-            
+            } 
         }
 
-        //add an upvoteUser to the anecdote
-        $addUpvote = $anecdote->addUpVoteUser($user);
+        //add an upVoteUser to the anecdote
+        $addUpVote = $anecdote->addUpVoteUser($user);
 
         //EntityManager edit the anecdote object in database
         $entityManager->flush($user);
 
-        $reponseAsArray = [
+        $responseAsArray = [
             'message' => 'Anecdote upVoted'
         ];
 
-        return $this->json($reponseAsArray, Response::HTTP_OK );
+        return $this->json($responseAsArray, Response::HTTP_OK );
 
     }
 
@@ -362,7 +362,7 @@ class AnecdoteController extends AbstractController
      */
     public function downVote(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($anecdoteId);
         //if the anecdote id isn't exist
         if (is_null($anecdote)) {
@@ -376,11 +376,11 @@ class AnecdoteController extends AbstractController
             return $this->getNotFoundResponse();
         }
 
-        //get all upvoteUsers to the anecdote
+        //get all upVoteUsers to the anecdote
         $allUpVoters = $anecdote->getUpVoteUsers();
 
         foreach($allUpVoters as $userVoter){
-
+            //get user id
             $userVoterId = $userVoter->getId();
 
             //find user informations by userId
@@ -389,21 +389,20 @@ class AnecdoteController extends AbstractController
             if($userVoterId == $userId){
                 //remove user in upVoteUser anecdote
                 $anecdote->removeUpVoteUser($user);
-            }
-            
+            } 
         }
 
         //add an downVoteUser to the anecdote
-        $addUpvote = $anecdote->addDownVoteUser($user);
+        $addDownVote = $anecdote->addDownVoteUser($user);
 
         //EntityManager edit the anecdote object in database
         $entityManager->flush($user);
 
-        $reponseAsArray = [
+        $responseAsArray = [
             'message' => 'Anecdote downVoted'
         ];
 
-        return $this->json($reponseAsArray, Response::HTTP_OK );
+        return $this->json($responseAsArray, Response::HTTP_OK );
 
     }
 
@@ -415,7 +414,7 @@ class AnecdoteController extends AbstractController
      */
     public function known(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($anecdoteId);
         //if the anecdote id isn't exist
         if (is_null($anecdote)) {
@@ -433,7 +432,7 @@ class AnecdoteController extends AbstractController
         $allUnknownVoters = $anecdote->getUnknownUsers();
 
         foreach($allUnknownVoters as $userVoter){
-
+            //get user id
             $userVoterId = $userVoter->getId();
 
             //find user informations by userId
@@ -443,20 +442,19 @@ class AnecdoteController extends AbstractController
                 //remove user in unknownUsers anecdote
                 $anecdote->removeUnknownUser($user);
             }
-            
         }
 
         //add an knownUser to the anecdote
-        $addUpvote = $anecdote->addKnownUser($user);
+        $addKnownVote = $anecdote->addKnownUser($user);
 
         //EntityManager edit the anecdote object in database
         $entityManager->flush($user);
 
-        $reponseAsArray = [
+        $responseAsArray = [
             'message' => 'Anecdote known'
         ];
 
-        return $this->json($reponseAsArray, Response::HTTP_OK );
+        return $this->json($responseAsArray, Response::HTTP_OK );
 
     }
 
@@ -468,7 +466,7 @@ class AnecdoteController extends AbstractController
      */
     public function unknown(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        //Check if anecdote id exist in database
+        //check if anecdote id exist in database
         $anecdote = $this->anecdoteRepository->find($anecdoteId);
         //if the anecdote id isn't exist
         if (is_null($anecdote)) {
@@ -486,7 +484,7 @@ class AnecdoteController extends AbstractController
         $allknownUsers = $anecdote->getknownUsers();
 
         foreach($allknownUsers as $userVoter){
-
+            //get user id
             $userVoterId = $userVoter->getId();
 
             //find user informations by userId
@@ -496,20 +494,19 @@ class AnecdoteController extends AbstractController
                 //remove user in knownVoteUsers anecdote
                 $anecdote->removeKnownUser($user);
             }
-            
         }
 
         //add an unknownVoteUser to the anecdote
-        $addUpvote = $anecdote->addUnknownUser($user);
+        $addUnknownVote = $anecdote->addUnknownUser($user);
 
         //EntityManager edit the anecdote object in database
         $entityManager->flush($user);
 
-        $reponseAsArray = [
+        $responseAsArray = [
             'message' => 'Anecdote unknown'
         ];
 
-        return $this->json($reponseAsArray, Response::HTTP_OK );
+        return $this->json($responseAsArray, Response::HTTP_OK );
 
     }
 
@@ -521,7 +518,7 @@ class AnecdoteController extends AbstractController
         $responseArray = [
             'error' => true,
             'userMessage' => 'Resource not found',
-            'internalMessage' => 'This anecdote isn\'t in databse',
+            'internalMessage' => 'This anecdote isn\'t in database',
         ];
 
         return $this->json($responseArray, Response::HTTP_UNPROCESSABLE_ENTITY);

@@ -23,56 +23,56 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class UserController extends AbstractController
 {
     /**
-     * method which list users
+     * Method which list users.
      * 
      * @Route("/", name="browse", methods={"GET"})
      */
     public function browse(UserRepository $userRepository): Response
     {
-        // transfert informations to the view
+        //transfert informations to the view
         return $this->render('user/browse.html.twig', [
             'user_list' => $userRepository->findAll()
         ]);
     }
 
     /**
-     * method which read one user
+     * Method which read one user.
      * 
      * @Route("/read/{id}", name="read", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function read($id, UserRepository $userRepository): Response
     {
-        // transfert informations to the view
+        //transfert informations to the view
         return $this->render('user/read.html.twig', [
             'user' => $userRepository->find($id),
         ]);
     }
 
     /**
-     * method which edit one user
+     * Method which edit one user.
      * 
-     * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
+     * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
     public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
-        // Create a form for user edition
+        //create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
 
-        // Handle listener for user form
+        //handle listener for user form
         $userForm->handleRequest($request);
 
         if ($userForm->isSubmitted() && $userForm->isValid()) {
-            // If the form is submitted and valid
-            // Use EntityManager
+            //if the form is submitted and valid
+            //use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
 
             $user->setUpdatedAt(new DateTimeImmutable());
 
             $clearPassword = $request->request->get('user')['password'];
-            // if password is submitted
+            //if password is submitted
             if (! empty($clearPassword))
             {
-                // hash password user
+                //hash password user
                 $hashedPassword = $passwordHasher->hashPassword($user, $clearPassword);
                 $user->setPassword($hashedPassword);
             }
@@ -107,26 +107,36 @@ class UserController extends AbstractController
                 
             }
 
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . $newFilename;
+
             // updates the 'img' property to store the image file name
             // instead of its contents
-            $user->setImg($newFilename);
+            $user->setImg($userImageUrl);
 
-        } else {
+        } else { 
             //if no image file
-            $user->setImg('default-avatar.png');
+            //get the base path url
+            $pathDirectory = $this->getParameter('avatar_directory');
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
         }
             
             //EntityManager edit the user object in database
             $entityManager->flush();
 
-            // Post a flash message in the view
+            //post a flash message in the view
             $this->addFlash('success', "The user `{$user->getPseudo()}` is update");
 
-            // Redirection after update
+            //redirection after update
             return $this->redirectToRoute('backoffice_user_browse');
         }
 
-        // Transfert the form to the view
+        //transfert the form to the view
         return $this->render('user/add.edit.html.twig', [
             'user_form' => $userForm->createView(),
             'user' => $user,
@@ -134,7 +144,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * method which add one user
+     * Method which add one user.
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
@@ -142,19 +152,19 @@ class UserController extends AbstractController
     {
         $user = new user();
 
-        // Create a virgin form (because the object is empty)
+        //create a virgin form (because the object is empty)
         $userForm = $this->createForm(UserType::class, $user);
 
-        // Handle listerner for user form
+        //handle listerner for user form
         $userForm->handleRequest($request);
 
         if ($userForm->isSubmitted() && $userForm->isValid()) {
-            // If the form is submitted and valid
-            // Use EntityManager
+            //if the form is submitted and valid
+            //use EntityManager
             $entityManager = $this->getDoctrine()->getManager();
             
             $clearPassword = $request->request->get('user')['password'];
-            // if password is submitted
+            //if password is submitted
             if (! empty($clearPassword))
             {
                 // hash password user
@@ -192,49 +202,59 @@ class UserController extends AbstractController
                 
             }
 
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . $newFilename;
+
             // updates the 'img' property to store the image file name
             // instead of its contents
-            $user->setImg($newFilename);
+            $user->setImg($userImageUrl);
 
         } else {
-            //if no image file set default avatar
-            $user->setImg('default-avatar.png');
+            //if no image file
+            //get the base path url
+            $pathDirectory = $this->getParameter('avatar_directory');
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
         }
             
-            // Persist the new object user
+            //persist the new object user
             $entityManager->persist($user);
             //EntityManager edit the user object in database
             $entityManager->flush();
 
-            // Post a flash message in the view
+            //post a flash message in the view
             $this->addFlash('success', "User `{$user->getPseudo()}` created successfully");
 
-            // redirection
+            //redirection
             return $this->redirectToRoute('backoffice_user_browse');
         }
 
-        // Transfert the form to the view
+        //transfert the form to the view
         return $this->render('user/add.edit.html.twig', [
             'user_form' => $userForm->createView(),
         ]);
     }
 
     /**
-     * method which delete one user
+     * Method which delete one user.
      * 
-     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"})
+     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"}, requirements={"id"="\d+"})
      */
     public function delete(User $user, EntityManagerInterface $entityManager): Response
     {
-        // Post a flash message in the view
+        //post a flash message in the view
         $this->addFlash('success', "User {$user->getId()} deleted successfully");
 
-        // Delete the anecdote
+        //delete the anecdote
         $entityManager->remove($user);
         //EntityManager delete the anecdote object in database
         $entityManager->flush();
 
-        // Redirection after delete
+        //redirection after delete
         return $this->redirectToRoute('backoffice_user_browse');
     }
 }

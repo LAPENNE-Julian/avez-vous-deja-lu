@@ -10,16 +10,19 @@ use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AppFixtures extends Fixture
 {
     private $passwordHasher; 
     private $slugger;
+    private $abstractController;
     
-    public function __construct(UserPasswordHasherInterface $passwordHasher,SluggerInterface $slugger)
+    public function __construct(UserPasswordHasherInterface $passwordHasher,SluggerInterface $slugger, AbstractController $abstractController)
     {
         $this->passwordHasher = $passwordHasher;
         $this->slugger = $slugger;
+        $this->abstractController = $abstractController;
     }
 
     public function load(ObjectManager $manager): void
@@ -33,7 +36,12 @@ class AppFixtures extends Fixture
         $basicUser->setRoles(['ROLE_USER']);
         $basicUser->setPseudo('user');
         $basicUser->setEmail('user@avdl.fr');
-        $hashedPassword = $this->passwordHasher->hashPassword($basicUser, 'user');
+        //get the base path url
+        $pathDirectory = $this->request->getParameters('avatar_directory');
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        $basicUser->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+        $hashedPassword = $this->passwordHasher->hashPassword($basicUser, 'useruser');
         $basicUser->setPassword($hashedPassword);
 
         //creation user with Role_Admin
@@ -42,7 +50,12 @@ class AppFixtures extends Fixture
         $adminUser->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $adminUser->setPseudo('admin');
         $adminUser->setEmail('admin@avdl.fr');
-        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'admin'));
+        //get the base path url
+        $pathDirectory = $this->request->getParameter('avatar_directory');
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        $basicUser->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'adminadmin'));
 
         //creation list of categories
         $categoryList = [];

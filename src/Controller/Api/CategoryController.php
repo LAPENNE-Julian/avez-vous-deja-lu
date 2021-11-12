@@ -22,6 +22,8 @@ class CategoryController extends AbstractController
     }
 
     /**
+     * Get all categories.
+     * 
      * @Route("", name="browse", methods={"GET"})
      */
     public function browse(CategoryRepository $categoryRepository): Response
@@ -33,7 +35,9 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/{categorySlug}/anecdote", name="browse_anecdotes", methods={"GET"})
+     * Get all anecdotes by slugger category.
+     * 
+     * @Route("/{categorySlug}/anecdote", name="browse_anecdotes", methods={"GET"}, requirements={"categorySlug"="/^[a-z0-9]+(-[a-z0-9]+)*$/"}"})
      * @IsGranted("ROLE_USER")
      */
     public function browseAnecdotes(string $categorySlug, CategoryRepository $categoryRepository): Response
@@ -49,9 +53,9 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * Find category name by slugger.
+     * Find category name by slugger category.
      * 
-     * @Route("/{categorySlug}/name", name="category_name_by_slugger", methods={"GET"})
+     * @Route("/{categorySlug}/name", name="category_name_by_slugger", methods={"GET"}, requirements={"categorySlug"="/^[a-z0-9]+(-[a-z0-9]+)*$/"}"})
      * @IsGranted("ROLE_USER")
      */
     public function findCategoryNameBySlug(string $categorySlug, CategoryRepository $categoryRepository): Response
@@ -72,7 +76,7 @@ class CategoryController extends AbstractController
     /**
      * Navigation to next in anecdote list by category.
      * 
-     * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="next_anecdote", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/next", name="next_anecdote", methods={"GET"}, requirements={"categorySlug"="/^[a-z0-9]+(-[a-z0-9]+)*$/"}", "anecdoteId"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function next(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response
@@ -97,7 +101,7 @@ class CategoryController extends AbstractController
     /**
      * Navigation to previous in anecdote list by category.
      * 
-     * @Route("/{categorySlug}/anecdote/{anecdoteId}/prev", name="previous_anecdote", methods={"GET"})
+     * @Route("/{categorySlug}/anecdote/{anecdoteId}/prev", name="previous_anecdote", methods={"GET"}, requirements={"categorySlug"="/^[a-z0-9]+(-[a-z0-9]+)*$/"}", "anecdoteId"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function previous(string $categorySlug, int $anecdoteId, CategoryRepository $categoryRepository): Response
