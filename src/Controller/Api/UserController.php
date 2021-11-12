@@ -30,7 +30,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("", name="read", methods={"GET","POST"})
+     * @Route("", name="read", methods={"GET"})
      */
     public function read(Request $request, SerializerInterface $serializer): Response
     {    
@@ -105,7 +105,7 @@ class UserController extends AbstractController
     /**
      * List of favorite anecdotes user.
      * 
-     * @Route("/{userId}/favorite", name="favorite_browse", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/{userId}/favorite", name="favorite_browse", methods={"GET"}, requirements={"userId"="\d+"})
      */
     public function favoriteBrowse(int $userId): Response
     {
@@ -126,7 +126,7 @@ class UserController extends AbstractController
     /**
      * Check if the anecdote is a favorite anecdote User.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function favoriteCheck(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -178,7 +178,7 @@ class UserController extends AbstractController
     /**
      * Navigation to next in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/next", name="favorite_next", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/next", name="favorite_next", methods={"GET"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function favoriteNext(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
@@ -213,7 +213,7 @@ class UserController extends AbstractController
     /**
      * Navigation to previous in list of favorite anecdotes.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/prev", name="favorite_previous", methods={"GET"})
+     * @Route("/{userId}/favorite/{anecdoteId}/prev", name="favorite_previous", methods={"GET"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function favoritePrev(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
@@ -248,7 +248,7 @@ class UserController extends AbstractController
     /**
      * method which add one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"GET","PATCH"})
+     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"POST"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function favoriteAdd(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
@@ -281,7 +281,7 @@ class UserController extends AbstractController
     /**
      * method which delete one favorite
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"GET","PATCH"})
+     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"DELETE"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function favoriteDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
@@ -314,7 +314,7 @@ class UserController extends AbstractController
     /**
      * Get random anecdotes, and add in random anecdotes user list.
      * 
-     * @Route("/{userId}/random", name="random",  methods={"GET","PATCH"})
+     * @Route("/{userId}/random", name="random",  methods={"GET","POST"}, requirements={"userId"="\d+"})
      */
     public function random(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
@@ -357,7 +357,7 @@ class UserController extends AbstractController
     /**
      * List of random anecdotes in user historical.
      * 
-     * @Route("/{userId}/random/anecdote", name="random_browse", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/{userId}/random/anecdote", name="random_browse", methods={"GET"}, requirements={"userId"="\d+"})
      */
     public function randomBrowse(int $userId): Response
     {
@@ -386,7 +386,7 @@ class UserController extends AbstractController
     /**
      * Get navigation to next anecdote in user random anecdotes historical.
      * 
-     * @Route("/{userId}/random/{anecdoteId}/next", name="random_next",  methods={"GET"})
+     * @Route("/{userId}/random/{anecdoteId}/next", name="random_next",  methods={"GET"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      * 
      */
     public function randomNext(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
@@ -422,7 +422,7 @@ class UserController extends AbstractController
     /**
      * Get navigation to previous anecdote in user random anecdotes historical.
      * 
-     * @Route("/{userId}/random/{anecdoteId}/prev", name="random_previous",  methods={"GET"})
+     * @Route("/{userId}/random/{anecdoteId}/prev", name="random_previous",  methods={"GET"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function randomPrevious(int $userId, int $anecdoteId, ApiNavigationAnecdote $apiNavigationAnecdote): Response
     {
@@ -457,7 +457,7 @@ class UserController extends AbstractController
     /**
      * method which delete one random anecdote
      * 
-     * @Route("/{userId}/random/{anecdoteId}/delete", name="random_delete", methods={"GET","PATCH"})
+     * @Route("/{userId}/random/{anecdoteId}/delete", name="random_delete", methods={"DELETE"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function randomDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
@@ -490,7 +490,7 @@ class UserController extends AbstractController
     /**
      * method which delete one random anecdote
      * 
-     * @Route("/{userId}/random/delete/all", name="random_delete_all", methods={"GET","PATCH"})
+     * @Route("/{userId}/random/delete/all", name="random_delete_all", methods={"DELETE"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      */
     public function randomDeleteAll(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {

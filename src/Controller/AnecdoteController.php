@@ -141,9 +141,9 @@ class AnecdoteController extends AbstractController
     }
 
     /**
-     * method which delete one anecdotev
+     * method which delete one anecdote
      * 
-     * @Route("/delete/{id}", name="delete", methods={"GET"})
+     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"})
      */
     public function delete(Anecdote $anecdote, EntityManagerInterface $entityManager): Response
     {

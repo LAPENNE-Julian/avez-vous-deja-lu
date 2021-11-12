@@ -49,7 +49,7 @@ class CategoryController extends AbstractController
     /**
      * method which edit one category
      * 
-     * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
+     * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
     public function edit(Request $request, Category $category,SluggerInterface $slugger ): Response
     {
@@ -139,7 +139,7 @@ class CategoryController extends AbstractController
     /**
      * method which delete one category
      * 
-     * @Route("/delete/{id}", name="delete", methods={"GET"})
+     * @Route("/delete/{id}", name="delete", methods={"GET", "DELETE"})
      */
     public function delete(Category $category, EntityManagerInterface $entityManager): Response
     {

@@ -62,7 +62,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to read next of all anecdotes.
      * 
-     * @Route("/{id}/next", name="read_next", methods={"GET"})
+     * @Route("/{id}/next", name="read_next", methods={"GET"}, requirements={"id"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function readNext(int $id): Response
@@ -91,7 +91,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to read previous of all anecdotes
      * 
-     * @Route("/{id}/prev", name="read_previous", methods={"GET"})
+     * @Route("/{id}/prev", name="read_previous", methods={"GET"}, requirements={"id"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function readPrev(int $id): Response
@@ -175,7 +175,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to next in five anecdotes with the most upVote.
      * 
-     * @Route("/best/{id}/next", name="best_next", methods={"GET"})
+     * @Route("/best/{id}/next", name="best_next", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function bestNext(int $id): Response
     {
@@ -201,17 +201,17 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to previous in for five anecdotes with the most upVote.
      * 
-     * @Route("/best/{id}/prev", name="best_previous", methods={"GET"})
+     * @Route("/best/{id}/prev", name="best_previous", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function bestPrev(int $id, AnecdoteRepository $anecdoteRepository): Response
+    public function bestPrev(int $id): Response
     {
         //get an array of five anecdotes with the most upVote
-        $bestAnecdotes = $anecdoteRepository->findByupVote();
+        $bestAnecdotes = $this->anecdoteRepository->findByupVote();
 
             //if haven't five anecdotes with upVote
             if (count($bestAnecdotes) !== 5) {
                 //random five anecdotes
-                $bestAnecdotes = $anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
+                $bestAnecdotes = $this->anecdoteRepository->findBy([], ['title' => 'ASC'], 5);
             }
 
         $previousAnecdote = $this->apiNavigationAnecdote->previous($bestAnecdotes, $id);
@@ -266,7 +266,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to next in five latest anecdotes.
      * 
-     * @Route("/latest/{id}/next", name="latest_next", methods={"GET"})
+     * @Route("/latest/{id}/next", name="latest_next", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function latestNext(int $id): Response
     {
@@ -285,7 +285,7 @@ class AnecdoteController extends AbstractController
     /**
      * Navigation to previous in five latest anecdotes.
      * 
-     * @Route("/latest/{id}/prev", name="latest_previous", methods={"GET"})
+     * @Route("/latest/{id}/prev", name="latest_previous", methods={"GET"}, requirements={"id"="\d+"})
      */
     public function latestPrev(int $id): Response
     {
@@ -304,7 +304,7 @@ class AnecdoteController extends AbstractController
     /**
      * User can put an upVote to an anecdote.
      * 
-     * @Route("/{anecdoteId}/user/{userId}/upvote", name="upVote", methods={"GET","PATCH"})
+     * @Route("/{anecdoteId}/user/{userId}/upvote", name="upVote", methods={"POST"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function upVote(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
@@ -357,7 +357,7 @@ class AnecdoteController extends AbstractController
     /**
      * User can put a downVote to an anecdote.
      * 
-     * @Route("/{anecdoteId}/user/{userId}/downvote", name="downVote", methods={"GET","PATCH"})
+     * @Route("/{anecdoteId}/user/{userId}/downvote", name="downVote", methods={"POST"}, requirements={"anecdoteId"="\d+", "userId"="\d+"} )
      * @IsGranted("ROLE_USER")
      */
     public function downVote(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
@@ -410,7 +410,7 @@ class AnecdoteController extends AbstractController
     /**
      * User can put a known to an anecdote.
      * 
-     * @Route("/{anecdoteId}/user/{userId}/known", name="known", methods={"GET","PATCH"})
+     * @Route("/{anecdoteId}/user/{userId}/known", name="known", methods={"POST"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function known(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
@@ -463,7 +463,7 @@ class AnecdoteController extends AbstractController
     /**
      * User can put a unknown to an anecdote.
      * 
-     * @Route("/{anecdoteId}/user/{userId}/unknown", name="unknown", methods={"GET","PATCH"})
+     * @Route("/{anecdoteId}/user/{userId}/unknown", name="unknown", methods={"POST"}, requirements={"anecdoteId"="\d+", "userId"="\d+"})
      * @IsGranted("ROLE_USER")
      */
     public function unknown(int $anecdoteId, int $userId, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
