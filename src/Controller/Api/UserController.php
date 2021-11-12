@@ -39,7 +39,6 @@ class UserController extends AbstractController
     {    
         //get Json content (user email)
         $jsonContent = $request->getContent();
-    
         //replace Json Content to an object
         $userInSession = $serializer->deserialize($jsonContent, User::class, 'json');
 
@@ -47,16 +46,30 @@ class UserController extends AbstractController
         $email = $userInSession->getEmail();
 
         //Find user informations by email
-        $user = $this->userRepository->findByEmail($email);
+        //$user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findBy(['email' => $email]);
 
         //if the user email isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
 
-        return $this->json($user, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
+        //get user image
+        $image = $user[0]->getImg();
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        //set the url of the user image
+        $url = 'http://' .$server. $image ;
+
+        $responseAsArray = [
+            'user' => $user,
+            'img_url' => $url,
+        ];
+
+        return $this->json($responseAsArray, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
     }
 
+    
     /**
      * @Route("/{userId}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
      */
@@ -142,7 +155,7 @@ class UserController extends AbstractController
         $my_base64_string = $user->getImg();
 
         //get the base path url
-        $pathDirectory = $this->getParameter('avatar_directory').'/';
+        $pathDirectory = $this->getParameter('avatar_directory');
 
         //name the image file
         $fileName = $user->getPseudo();
