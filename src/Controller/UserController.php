@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @Route("/backoffice/user", name="backoffice_user_")
@@ -54,7 +53,7 @@ class UserController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
-    public function edit(File $file, Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         //create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
