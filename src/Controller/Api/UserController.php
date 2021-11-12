@@ -83,8 +83,8 @@ class UserController extends AbstractController
             AbstractNormalizer::OBJECT_TO_POPULATE => $user
         ]);
        
-        //remove whitespace in password
-        $user->setPassword(trim($user->getPassword()));
+        // //remove whitespace in password
+        // $user->setPassword(trim($user->getPassword()));
 
         // validation
         $errors = $validator->validate($user);
@@ -398,7 +398,7 @@ class UserController extends AbstractController
      * 
      * @Route("/{userId}/upvote", name="upVote_browse", methods={"GET"}, requirements={"userId"="\d+"})
      */
-    public function upvoteBrowse(int $userId): Response
+    public function upVoteBrowse(int $userId): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);
@@ -415,11 +415,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * List of downVote anecdotes user.
+     * List of known anecdotes user.
      * 
-     * @Route("/{userId}/downvote", name="downVote_browse", methods={"GET"}, requirements={"userId"="\d+"})
+     * @Route("/{userId}/known", name="known_browse", methods={"GET"}, requirements={"userId"="\d+"})
      */
-    public function downvoteBrowse(int $userId): Response
+    public function knownBrowse(int $userId): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);
@@ -429,10 +429,32 @@ class UserController extends AbstractController
             return $this->getNotFoundResponse();
         }
 
-        //find list of downVote anecdotes user
-        $userDownVotes = $user->getDownVote();
+        //find list of known anecdotes user
+        $userKnown = $user->getKnown();
 
-        return $this->json($userDownVotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($userKnown, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+
+    /**
+     * List of unknown anecdotes user.
+     * 
+     * @Route("/{userId}/unknown", name="unknown_browse", methods={"GET"}, requirements={"userId"="\d+"})
+     */
+    public function unknownBrowse(int $userId): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of unknown anecdotes user
+        $userUnknown = $user->getUnknown();
+
+        return $this->json($userUnknown, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
