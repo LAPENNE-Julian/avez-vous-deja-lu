@@ -210,7 +210,7 @@ class UserController extends AbstractController
     /**
      * Check if the anecdote is a favorite anecdote user.
      * 
-     * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"userId"="\d+", anecdoteId"="\d+"})
+     * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
      */
     public function favoriteCheck(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository): Response
     {
@@ -391,6 +391,27 @@ class UserController extends AbstractController
         ];
 
         return $this->json($responseAsArray, Response::HTTP_OK );
+    }
+
+    /**
+     * List of upVote anecdotes user.
+     * 
+     * @Route("/{userId}/upvote", name="upVote_browse", methods={"GET"}, requirements={"userId"="\d+"})
+     */
+    public function upvoteBrowse(int $userId): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of upVote anecdotes user
+        $userUpVotes = $user->getUpVote();
+
+        return $this->json($userUpVotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
