@@ -37,7 +37,7 @@ class UserController extends AbstractController
     /**
      * Get all informations of user by email.
      * 
-     * @Route("", name="read", methods={"GET"})
+     * @Route("", name="read", methods={"GET", "POST"})
      */
     public function read(Request $request, SerializerInterface $serializer): Response
     {    
@@ -412,6 +412,27 @@ class UserController extends AbstractController
         $userUpVotes = $user->getUpVote();
 
         return $this->json($userUpVotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+    }
+
+    /**
+     * List of downVote anecdotes user.
+     * 
+     * @Route("/{userId}/downvote", name="downVote_browse", methods={"GET"}, requirements={"userId"="\d+"})
+     */
+    public function downvoteBrowse(int $userId): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find list of downVote anecdotes user
+        $userDownVotes = $user->getDownVote();
+
+        return $this->json($userDownVotes, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
     }
 
     /**
