@@ -9,12 +9,12 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-
-
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @Route("/backoffice/user", name="backoffice_user_")
@@ -53,7 +53,7 @@ class UserController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher): Response
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         // Create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
@@ -85,6 +85,37 @@ class UserController extends AbstractController
                 $user->setRoles(['ROLE_USER','ROLE_ADMIN']);
             }
             
+        /** @var UploadedFile $img */
+        $avatar = $userForm->get('img')->getData();
+
+        // this condition is needed because the 'img' field is not required
+        // so the image file must be processed only when a file is uploaded
+        if ($avatar) {
+            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
+            // this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+
+            // Move the file to the directory where avatars are stored
+            try {
+                $avatar->move(
+                    $this->getParameter('avatar_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                // ... handle exception if something happens during file upload
+                
+            }
+
+            // updates the 'img' property to store the image file name
+            // instead of its contents
+            $user->setImg($newFilename);
+
+        } else {
+            //if no image file
+            $user->setImg('default-avatar.png');
+        }
+            
             //EntityManager edit the user object in database
             $entityManager->flush();
 
@@ -107,7 +138,7 @@ class UserController extends AbstractController
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
-    public function add(Request $request, UserPasswordHasherInterface $passwordHasher): Response
+    public function add(Request $request, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         $user = new user();
 
@@ -139,6 +170,37 @@ class UserController extends AbstractController
                 $user->setRoles(['ROLE_USER','ROLE_ADMIN']);
             }
 
+        /** @var UploadedFile $img */
+        $avatar = $userForm->get('img')->getData();
+
+        // this condition is needed because the 'img' field is not required
+        // so the image file must be processed only when a file is uploaded
+        if ($avatar) {
+            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
+            // this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+
+            // Move the file to the directory where avatars are stored
+            try {
+                $avatar->move(
+                    $this->getParameter('avatar_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                // ... handle exception if something happens during file upload
+                
+            }
+
+            // updates the 'img' property to store the image file name
+            // instead of its contents
+            $user->setImg($newFilename);
+
+        } else {
+            //if no image file set default avatar
+            $user->setImg('default-avatar.png');
+        }
+            
             // Persist the new object user
             $entityManager->persist($user);
             //EntityManager edit the user object in database

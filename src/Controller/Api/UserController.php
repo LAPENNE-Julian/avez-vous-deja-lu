@@ -5,15 +5,18 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\AnecdoteRepository;
 use App\Repository\UserRepository;
+use App\Utils\ApiBase64ToImg;
 use App\Utils\ApiNavigationAnecdote;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -36,7 +39,6 @@ class UserController extends AbstractController
     {    
         //get Json content (user email)
         $jsonContent = $request->getContent();
-    
         //replace Json Content to an object
         $userInSession = $serializer->deserialize($jsonContent, User::class, 'json');
 
@@ -44,20 +46,34 @@ class UserController extends AbstractController
         $email = $userInSession->getEmail();
 
         //Find user informations by email
-        $user = $this->userRepository->findByEmail($email);
+        //$user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findBy(['email' => $email]);
 
         //if the user email isn't exist
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
 
-        return $this->json($user, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
+        //get user image
+        $image = $user[0]->getImg();
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        //set the url of the user image
+        $url = 'http://' .$server. $image ;
+
+        $responseAsArray = [
+            'user' => $user,
+            'img_url' => $url,
+        ];
+
+        return $this->json($responseAsArray, Response::HTTP_OK, [], ['groups' => 'api_user_read']);
     }
 
+    
     /**
      * @Route("/{userId}/edit", name="edit", methods={"PATCH"}, requirements={"id"="\d+"})
      */
-    public function edit(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function edit(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);
@@ -69,7 +85,6 @@ class UserController extends AbstractController
 
         //get Json content
         $jsonContent = $request->getContent();
-
         //deserialize Json content for User entity
         $serializer->deserialize($jsonContent, User::class, 'json',[
             AbstractNormalizer::OBJECT_TO_POPULATE => $user
@@ -91,6 +106,69 @@ class UserController extends AbstractController
 
             return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        //EntityManager edit the object in database
+        $entityManager->flush();
+        
+        $reponseAsArray = [
+            'message' => 'user update'
+        ];
+
+        return $this->json($reponseAsArray, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/{userId}/edit/img", name="edit_img", methods={"PATCH"}, requirements={"id"="\d+"})
+     */
+    public function editImg(int $userId, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $entityManager, SluggerInterface $slugger, ApiBase64ToImg $apiBase64ToImg): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+
+        //if the user id isn't exist.
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get Json content
+        $jsonContent = $request->getContent();
+        //deserialize Json content for User entity
+        $serializer->deserialize($jsonContent, User::class, 'json',[
+            AbstractNormalizer::OBJECT_TO_POPULATE => $user
+        ]);
+
+        //validation
+        $errors = $validator->validate($user);
+
+        //if errors
+        if(count($errors) > 0)
+        {
+            $reponseAsArray = [
+                'error' => true,
+                'message' => $errors,
+            ];
+
+            return $this->json($reponseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        //get base64 string fot the user avatar
+        $my_base64_string = $user->getImg();
+
+        //get the base path url
+        $pathDirectory = $this->getParameter('avatar_directory');
+
+        //name the image file
+        $fileName = $user->getPseudo();
+        // this is needed to safely include the file name as part of the URL
+        $safeFilename = $slugger->slug($fileName);
+        $newFilename = $pathDirectory . $safeFilename.'-'.uniqid(). '.jpg';
+
+        //Use ApiBase64ToImg Service for convert the base 64 string to img
+        $apiBase64ToImg->convertToImg($my_base64_string, $newFilename);
+
+        // updates the 'img' property to store the image file name
+        // instead of its contents
+        $user->setImg($newFilename);
 
         //EntityManager edit the object in database
         $entityManager->flush();

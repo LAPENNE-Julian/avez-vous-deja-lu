@@ -30,11 +30,11 @@ class RegistrationController extends AbstractController
     {
         $user = new User();
 
-        $user->setPassword(trim($user->getPassword()));
+        //remove whitespace in password
+        // $trimPassword = trim($user->getPassword());
+        // $user->setPassword($trimPassword);
 
         $form = $this->createForm(RegistrationFormType::class, $user);
-
-        //remove whitespace in password
 
         $form->handleRequest($request);
 

@@ -128,6 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->unknown = new ArrayCollection();
         $this->roles[] = "ROLE_USER";
         $this->randomAnecdotes = new ArrayCollection();
+        $this->img = 'default-avatar.png';
 
     }
 
