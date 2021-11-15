@@ -100,13 +100,16 @@ class UserController extends AbstractController
             return $this->json($responseAsArray, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        //encode the plain password
-        $user->setPassword(
-            $userPasswordHasherInterface->hashPassword(
+        //if password exist in decode Json content
+        if (array_key_exists('password', json_decode($jsonContent, true))) {
+            //encode the plain password
+            $user->setPassword(
+                $userPasswordHasherInterface->hashPassword(
                     $user,
                     $user->getPassword()
                 )
             );
+        }
         
         //EntityManager edit the object in database
         $entityManager->flush();
@@ -211,7 +214,73 @@ class UserController extends AbstractController
     }
 
     /**
-     * Check if the anecdote is a favorite anecdote user.
+     * Method which add one favorite.
+     * 
+     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"POST"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
+     */
+    public function favoriteAdd(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //find anecdote informations by anecdoteId
+        $newFavoriteAnecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist
+        if (is_null($newFavoriteAnecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        $user->addFavorite($newFavoriteAnecdote);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $responseAsArray = [
+            'message' => 'Add favorite'
+        ];
+
+        return $this->json($responseAsArray, Response::HTTP_OK );
+    }
+
+    /**
+     * Method which delete one favorite.
+     * 
+     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"DELETE"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
+     */
+    public function favoriteDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+        //find anecdote informations by anecdoteId
+        $anecdote = $anecdoteRepository->find($anecdoteId);
+        //if the anecdote id isn't exist
+        if (is_null($anecdote)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //Delete the favorite anecdote
+        $user->removeFavorite($anecdote);
+
+        //EntityManager edit the user object in database
+        $entityManager->flush($user);
+
+        $responseAsArray = [
+            'message' => 'Delete favorite'
+        ];
+
+        return $this->json($responseAsArray, Response::HTTP_OK );
+    }
+
+    /**
+     * Retun true if the anecdote is a favorite anecdote user.
      * 
      * @Route("/{userId}/favorite/{anecdoteId}/check", name="favorite_check", methods={"GET"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
      */
@@ -234,6 +303,11 @@ class UserController extends AbstractController
         //find list of favorite anecdotes user
         $userFavorites = $user->getFavorite();
 
+        $response = [
+            'response' => false,
+            'userMessage' => 'This anecdote isn\'t in your favorite',
+        ];
+
         foreach($userFavorites as $anecdote){
             //get anecdote id in the user favorites list
             $anecdoteIdInUserFavoritesList = $anecdote->getId();
@@ -248,12 +322,6 @@ class UserController extends AbstractController
 
                 return $this->json($response, Response::HTTP_OK);
 
-            } else {
-
-                $response = [
-                    'response' => false,
-                    'userMessage' => 'This anecdote isn\'t in your favorite',
-                ];
             }
         }
 
@@ -331,72 +399,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * Method which add one favorite.
-     * 
-     * @Route("/{userId}/favorite/{anecdoteId}/add", name="favorite_add", methods={"POST"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
-     */
-    public function favoriteAdd(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
-    {
-        //find user informations by userId
-        $user = $this->userRepository->find($userId);
-        //if the user id isn't exist
-        if (is_null($user)) {
-            return $this->getNotFoundResponse();
-        }
-
-        //find anecdote informations by anecdoteId
-        $newFavoriteAnecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist
-        if (is_null($newFavoriteAnecdote)) {
-            return $this->getNotFoundResponse();
-        }
-
-        $user->addFavorite($newFavoriteAnecdote);
-
-        //EntityManager edit the user object in database
-        $entityManager->flush($user);
-
-        $responseAsArray = [
-            'message' => 'Add favorite'
-        ];
-
-        return $this->json($responseAsArray, Response::HTTP_OK );
-    }
-
-    /**
-     * Method which delete one favorite.
-     * 
-     * @Route("/{userId}/favorite/{anecdoteId}/delete", name="favorite_delete", methods={"DELETE"}, requirements={"userId"="\d+", "anecdoteId"="\d+"})
-     */
-    public function favoriteDelete(int $userId, int $anecdoteId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
-    {
-        //find user informations by userId
-        $user = $this->userRepository->find($userId);
-        //if the user id isn't exist
-        if (is_null($user)) {
-            return $this->getNotFoundResponse();
-        }
-        //find anecdote informations by anecdoteId
-        $anecdote = $anecdoteRepository->find($anecdoteId);
-        //if the anecdote id isn't exist
-        if (is_null($anecdote)) {
-            return $this->getNotFoundResponse();
-        }
-
-        //Delete the favorite anecdote
-        $user->removeFavorite($anecdote);
-
-        //EntityManager edit the user object in database
-        $entityManager->flush($user);
-
-        $responseAsArray = [
-            'message' => 'Delete favorite'
-        ];
-
-        return $this->json($responseAsArray, Response::HTTP_OK );
-    }
-
-    /**
      * List of upVote anecdotes user.
      * 
      * @Route("/{userId}/upvote", name="upVote_browse", methods={"GET"}, requirements={"userId"="\d+"})
@@ -460,11 +462,38 @@ class UserController extends AbstractController
     }
 
     /**
-     * Get random anecdotes, and add in random anecdotes user list.
+     * Get random anecdotes.
      * 
-     * @Route("/{userId}/random", name="random",  methods={"GET","POST"}, requirements={"userId"="\d+"})
+     * @Route("/{userId}/random", name="random",  methods={"GET"}, requirements={"userId"="\d+"})
      */
     public function random(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
+    {
+        //find user informations by userId
+        $user = $this->userRepository->find($userId);
+        //if the user id isn't exist
+        if (is_null($user)) {
+            return $this->getNotFoundResponse();
+        }
+
+        //get all anecdotes informations
+        $allAnecdotes = $anecdoteRepository->findAll();
+        //count all anecdotes in database
+        $anecdotesIndex = count($allAnecdotes);
+        //random in count index
+        $randomIndex = rand(1, $anecdotesIndex);
+
+        //get an anecdote random
+        $anecdote = $anecdoteRepository->find($randomIndex);
+
+        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+    }
+
+    /**
+     * Get random anecdotes, and add in random anecdotes user list.
+     * 
+     * @Route("/{userId}/random/add", name="random_add",  methods={"GET","POST"}, requirements={"userId"="\d+"})
+     */
+    public function randomAdd(int $userId, AnecdoteRepository $anecdoteRepository, EntityManagerInterface $entityManager): Response
     {
         //find user informations by userId
         $user = $this->userRepository->find($userId);

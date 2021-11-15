@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @Route("/backoffice/user", name="backoffice_user_")
@@ -54,7 +53,7 @@ class UserController extends AbstractController
      * 
      * @Route("/edit/{id}", name="edit", methods={"GET", "POST"}, requirements={"id"="\d+"})
      */
-    public function edit(File $file, Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         //create a form for user edition
         $userForm = $this->createForm(UserType::class, $user);
@@ -92,11 +91,19 @@ class UserController extends AbstractController
         // this condition is needed because the 'img' field is not required
         // so the image file must be processed only when a file is uploaded
         if ($avatar) {
-            
-            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
-            // this is needed to safely include the file name as part of the URL
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+
+            //get the base path url
+            $pathDirectory = $this->getParameter('avatar_directory');
+            //name the image file, pseudo user (unique) delete the older user img
+            $fileName = $user->getPseudo();
+            //this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($fileName);
+            $newFilename = $pathDirectory . $safeFilename . '.jpg';
+
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . $newFilename;
 
             // Move the file to the directory where avatars are stored
             try {
@@ -104,15 +111,12 @@ class UserController extends AbstractController
                     $this->getParameter('avatar_directory'),
                     $newFilename
                 );
-            } catch (FileException $e) {
+            } catch (FileException $errors) {
                 // ... handle exception if something happens during file upload
-                
+    
+                //post a flash message in the view
+                $this->addFlash('errors', "An error happens during file upload : $errors");
             }
-
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $userImageUrl = 'http://' . $server . $newFilename;
 
             // updates the 'img' property to store the image file name
             // instead of its contents
@@ -191,10 +195,19 @@ class UserController extends AbstractController
         // this condition is needed because the 'img' field is not required
         // so the image file must be processed only when a file is uploaded
         if ($avatar) {
-            $originalFilename = pathinfo($avatar->getClientOriginalName(), PATHINFO_FILENAME);
-            // this is needed to safely include the file name as part of the URL
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$avatar->guessExtension();
+
+            //get the base path url
+            $pathDirectory = $this->getParameter('avatar_directory');
+            //name the image file, pseudo user (unique) delete the older user img
+            $fileName = $user->getPseudo();
+            //this is needed to safely include the file name as part of the URL
+            $safeFilename = $slugger->slug($fileName);
+            $newFilename = $pathDirectory . $safeFilename . '.jpg';
+
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . $newFilename;
 
             // Move the file to the directory where avatars are stored
             try {
@@ -202,28 +215,28 @@ class UserController extends AbstractController
                     $this->getParameter('avatar_directory'),
                     $newFilename
                 );
-            } catch (FileException $e) {
+            } catch (FileException $errors) {
                 // ... handle exception if something happens during file upload
-                
+    
+                //post a flash message in the view
+                $this->addFlash('errors', "An error happens during file upload : $errors");
             }
-
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $userImageUrl = 'http://' . $server . $newFilename;
 
             // updates the 'img' property to store the image file name
             // instead of its contents
             $user->setImg($userImageUrl);
 
-        } else {
-            //if no image file
-            //get the base path url
-            $pathDirectory = $this->getParameter('avatar_directory');
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+        } else { 
+            //if user img is null, set an image by default
+            if($user->getImg() == null){
+                //if no image file
+                //get the base path url
+                $pathDirectory = $this->getParameter('avatar_directory');
+                //get http host
+                $server = $_SERVER['HTTP_HOST'];
+                //set the url of the user image
+                $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+            }
         }
             
             //persist the new object user
