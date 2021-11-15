@@ -103,7 +103,7 @@ class UserController extends AbstractController
             //get http host
             $server = $_SERVER['HTTP_HOST'];
             //set the url of the user image
-            $userImageUrl = 'http://' . $server . $newFilename;
+            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
 
             // Move the file to the directory where avatars are stored
             try {
@@ -131,7 +131,7 @@ class UserController extends AbstractController
                 //get http host
                 $server = $_SERVER['HTTP_HOST'];
                 //set the url of the user image
-                $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+                $user->setImg('http://' . $server . '/uploads/default-avatar.jpg');
             }
         }
             
@@ -207,7 +207,7 @@ class UserController extends AbstractController
             //get http host
             $server = $_SERVER['HTTP_HOST'];
             //set the url of the user image
-            $userImageUrl = 'http://' . $server . $newFilename;
+            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
 
             // Move the file to the directory where avatars are stored
             try {
@@ -235,7 +235,7 @@ class UserController extends AbstractController
                 //get http host
                 $server = $_SERVER['HTTP_HOST'];
                 //set the url of the user image
-                $user->setImg('http://' . $server . $pathDirectory . 'default-avatar.png');
+                $user->setImg('http://' . $server . '/uploads/default-avatar.jpg');
             }
         }
             
