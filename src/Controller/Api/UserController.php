@@ -133,9 +133,6 @@ class UserController extends AbstractController
         if (is_null($user)) {
             return $this->getNotFoundResponse();
         }
-        //get http host
-        $server = $_SERVER['HTTP_HOST'];
-        $userImgDefault = 'http://' . $server . 'default-avatar.png';
 
         //get Json content
         $jsonContent = $request->getContent();

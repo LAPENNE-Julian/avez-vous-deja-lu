@@ -100,11 +100,6 @@ class UserController extends AbstractController
             $safeFilename = $slugger->slug($fileName);
             $newFilename = $pathDirectory . $safeFilename . '.jpg';
 
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
-
             // Move the file to the directory where avatars are stored
             try {
                 $avatar->move(
@@ -117,6 +112,11 @@ class UserController extends AbstractController
                 //post a flash message in the view
                 $this->addFlash('errors', "An error happens during file upload : $errors");
             }
+
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
 
             // updates the 'img' property to store the image file name
             // instead of its contents
@@ -204,11 +204,6 @@ class UserController extends AbstractController
             $safeFilename = $slugger->slug($fileName);
             $newFilename = $pathDirectory . $safeFilename . '.jpg';
 
-            //get http host
-            $server = $_SERVER['HTTP_HOST'];
-            //set the url of the user image
-            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
-
             // Move the file to the directory where avatars are stored
             try {
                 $avatar->move(
@@ -221,6 +216,11 @@ class UserController extends AbstractController
                 //post a flash message in the view
                 $this->addFlash('errors', "An error happens during file upload : $errors");
             }
+
+            //get http host
+            $server = $_SERVER['HTTP_HOST'];
+            //set the url of the user image
+            $userImageUrl = 'http://' . $server . '/uploads/' . $safeFilename . '.jpg';
 
             // updates the 'img' property to store the image file name
             // instead of its contents
