@@ -47,4 +47,33 @@ class CategoryRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * returns all anecdotes by category
+    * @return Anecdote[] Return an array of Anecdote objects
+    */
+    public function findByCategory($categorySlug)
+    {
+        $dql = "SELECT a FROM App\Entity\Anecdote a JOIN a.category c WHERE c.slug =". " '$categorySlug' ";
+    
+        $query = $this->getEntityManager()->createQuery($dql);
+        $result = $query->execute();
+
+        return $result;
+    }
+
+    /**
+     * returns all informations of category by category slug
+    * @return Category Return an category object
+    */
+    public function findCategoryNameBySlug($categorySlug)
+    {
+        $dql = "SELECT c FROM App\Entity\Category c WHERE c.slug =". " '$categorySlug' ";
+    
+        $query = $this->getEntityManager()->createQuery($dql);
+        $result = $query->execute();
+
+        return $result;
+    }
+    
 }

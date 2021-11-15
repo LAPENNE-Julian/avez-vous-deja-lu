@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome to Avez-vous déjà lu ..?{% endblock %}
+
+{% block body %}
+    {{ include('_partials/_flash_messages.html.twig') }}
+    <section class="py-5 text-center container mt-4">
+        <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light">Welcome to back office</h1>
+                <p class="lead text-muted">Use the navigation to consult our site.</p>
+                {% if app.user is null %}
+                <p>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-info my-2">Sign in</a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-warning my-2">Sign up</a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

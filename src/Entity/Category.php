@@ -19,25 +19,26 @@ class Category
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
      */
     private $color;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_category_browse")
      */
     private $img;
 
@@ -55,6 +56,12 @@ class Category
      * @ORM\ManyToMany(targetEntity=Anecdote::class, mappedBy="category")
      */
     private $anecdotes;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"api_anecdote_browse" , "api_category_browse", "api_anecdote_read"})
+     */
+    private $slug;
 
     public function __construct()
     {
@@ -77,7 +84,7 @@ class Category
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
 
@@ -155,6 +162,18 @@ class Category
         if ($this->anecdotes->removeElement($anecdote)) {
             $anecdote->removeCategory($this);
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }

@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -14,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -21,32 +23,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read", "api_user_read"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string", length=30, unique=true)
+     * @Groups({"api_anecdote_browse", "api_anecdote_read", "api_user_read"})
      * @Assert\NotBlank
-     * @Groups("api_anecdote_browse")
      */
     private $pseudo;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank
+     * @Groups("api_user_read")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=64)
-     * @Assert\NotBlank
+     * @Assert\Length(min=6, max=64)
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_user_read"})
      */
     private $img;
 
@@ -57,6 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups("api_user_read")
      */
     private $createdAt;
 
@@ -68,6 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="favoriteUsers")
      * @ORM\JoinTable(name="favorite")
+     * @Groups("api_user_read")
      */
     private $favorite;
 
@@ -79,6 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="upVoteUsers")
      * @ORM\JoinTable(name="upVote")
+     * @Groups("api_user_read")
      */
     private $upVote;
 
@@ -91,14 +97,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="knownUsers")
      * @ORM\JoinTable(name="known")
+     * @Groups("api_user_read")
      */
     private $known;
 
     /**
      * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="unknownUsers")
      * @ORM\JoinTable(name="unknown")
+     * @Groups("api_user_read")
      */
     private $unknown;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isVerified = false;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Anecdote::class, inversedBy="randomUsers")
+     * @ORM\JoinTable(name="random")
+     * @Groups("api_user_read")
+     */
+    private $randomAnecdotes;
 
     public function __construct()
     {
@@ -109,8 +129,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->downVote = new ArrayCollection();
         $this->known = new ArrayCollection();
         $this->unknown = new ArrayCollection();
-        $this->roles[] = 'ROLE_USER';
-
+        $this->roles[] = "ROLE_USER";
+        $this->randomAnecdotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -150,7 +170,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -373,7 +393,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    public function setRoles(array $roles): self
+    public function setRoles(?array $roles): self
     {
         $this->roles = $roles;
 
@@ -398,5 +418,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Anecdote[]
+     */
+    public function getRandomAnecdotes(): Collection
+    {
+        return $this->randomAnecdotes;
+    }
+
+    public function addRandomAnecdote(Anecdote $randomAnecdote): self
+    {
+        if (!$this->randomAnecdotes->contains($randomAnecdote)) {
+            $this->randomAnecdotes[] = $randomAnecdote;
+        }
+
+        return $this;
+    }
+
+    public function removeRandomAnecdote(Anecdote $randomAnecdote): self
+    {
+        $this->randomAnecdotes->removeElement($randomAnecdote);
+
+        return $this;
     }
 }

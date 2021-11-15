@@ -1,0 +1,1 @@
+{"version":1,"defects":{"App\\Tests\\Controller\\Test::testPublicAccess":3},"times":{"App\\Tests\\Controller\\Test::testSomething":0.013,"App\\Tests\\Controller\\Test::testPublicAccess":0.19}}

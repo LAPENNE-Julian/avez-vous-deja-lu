@@ -19,14 +19,14 @@ class Anecdote
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read" , "api_user_read" , "api_user_favorite_browse"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $title;
 
@@ -39,23 +39,25 @@ class Anecdote
     /**
      * @ORM\Column(type="string", length=10000)
      * @Assert\NotBlank
-     * 
+     * @Groups("api_anecdote_read")
      */
     private $content;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_anecdote_read")
      */
     private $img;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_anecdote_read")
      */
     private $source;
 
     /**
      * @ORM\Column(type="datetime_immutable")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $createdAt;
 
@@ -71,35 +73,44 @@ class Anecdote
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="anecdotes")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $writer;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="upVote")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $upVoteUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="downVote")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $downVoteUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="known")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $knownUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="unknown")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $unknownUsers;
 
     /**
      * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="anecdotes")
-     * @Groups("api_anecdote_browse")
+     * @Groups({"api_anecdote_browse", "api_anecdote_read"})
      */
     private $category;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="randomAnecdotes")
+     */
+    private $randomUsers;
 
     public function __construct()
     {
@@ -110,6 +121,7 @@ class Anecdote
         $this->knownUsers = new ArrayCollection();
         $this->unknownUsers = new ArrayCollection();
         $this->category = new ArrayCollection();
+        $this->randomUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,7 +134,7 @@ class Anecdote
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
 
@@ -146,7 +158,7 @@ class Anecdote
         return $this->content;
     }
 
-    public function setContent(string $content): self
+    public function setContent(?string $content): self
     {
         $this->content = $content;
 
@@ -371,4 +383,32 @@ class Anecdote
 
         return $this;
     }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getRandomUsers(): Collection
+    {
+        return $this->randomUsers;
+    }
+
+    public function addRandomUser(User $randomUser): self
+    {
+        if (!$this->randomUsers->contains($randomUser)) {
+            $this->randomUsers[] = $randomUser;
+            $randomUser->addRandomAnecdote($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRandomUser(User $randomUser): self
+    {
+        if ($this->randomUsers->removeElement($randomUser)) {
+            $randomUser->removeRandomAnecdote($this);
+        }
+
+        return $this;
+    }
+
 }
