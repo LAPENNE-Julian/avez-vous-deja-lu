@@ -42,7 +42,7 @@ class AppFixtures extends Fixture
         $adminUser->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $adminUser->setPseudo('admin');
         $adminUser->setEmail('admin@avdl.fr');
-        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'adminadmi'));
+        $adminUser->setPassword($this->passwordHasher->hashPassword($adminUser, 'adminadmin'));
 
         //creation list of categories
         $categoryList = [];

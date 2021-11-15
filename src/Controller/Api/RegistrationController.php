@@ -53,6 +53,13 @@ class RegistrationController extends AbstractController
             )
         );
 
+        //get http host
+        $server = $_SERVER['HTTP_HOST'];
+        //set the url of the user image
+        $userImageUrl = 'http://' . $server . '/uploads/default-avatar.jpg';
+        //set user image with default avatar
+        $newUser->setImg($userImageUrl);
+        
         $entityManager->persist($newUser);
         $entityManager->flush();
 
