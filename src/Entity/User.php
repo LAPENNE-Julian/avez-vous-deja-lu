@@ -132,11 +132,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles[] = "ROLE_USER";
         $this->randomAnecdotes = new ArrayCollection();
 
-        //get http host
-        $server = $_SERVER['HTTP_HOST'];
-        //set the url of the user image by default
-        $userImageUrl = 'http://' . $server . '/var/www/html/projet-culture-g/public/uploads/default-avatar.png';
-        $this->img = $userImageUrl;
+       
 
     }
 
