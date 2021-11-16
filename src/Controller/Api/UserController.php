@@ -167,7 +167,6 @@ class UserController extends AbstractController
         $safeFilename = $slugger->slug($fileName);
         $newFilename = $pathDirectory . $safeFilename . '.jpg';
 
-        dd($newFilename);
         //Use ApiBase64ToImg Service for convert the base 64 string to img
         $apiBase64ToImg->convertToImg($myBase64String, $newFilename);
 
