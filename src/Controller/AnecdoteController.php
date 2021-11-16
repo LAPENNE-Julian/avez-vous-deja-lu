@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anecdote;
 use App\Form\AnecdoteType;
 use App\Repository\AnecdoteRepository;
+use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -97,7 +98,7 @@ class AnecdoteController extends AbstractController
      * 
      * @Route("/add", name="add", methods={"GET", "POST"})
      */
-    public function add(Request $request): Response
+    public function add(Request $request, UserRepository $userRepository): Response
     {
         $anecdote = new Anecdote();
 
@@ -114,6 +115,11 @@ class AnecdoteController extends AbstractController
             
             //persist the new object anecdote
             $entityManager->persist($anecdote);
+
+            //get the user with role Admin
+            $admin = $userRepository->find(2);
+            //set admin Writer for the anecdote 
+            $anecdote->setWriter($admin);
 
             //if the new anecdote haven't description when the submit
             if($anecdote->getDescription() == null){
