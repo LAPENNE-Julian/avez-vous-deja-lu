@@ -54,7 +54,7 @@ class AnecdoteRepository extends ServiceEntityRepository
     */
     public function findByupVote()
     {
-        $dql = "SELECT a , count(a.id) as upVote FROM App\Entity\Anecdote a " .
+        $dql = "SELECT a FROM App\Entity\Anecdote a " .
         "JOIN a.upVoteUsers u GROUP BY a.id ORDER BY upVote DESC";
         ;
         $query = $this->getEntityManager()->createQuery($dql);
