@@ -19,6 +19,7 @@ class ApiBase64ToImg {
         $newAvatarFile = fopen($absolutePathFile, "wb"); 
         //write img data in the new avatar file
         fwrite($newAvatarFile, base64_decode($base64String));
+        dd($newAvatarFile);
         //close the new avatar file
         fclose($newAvatarFile); 
 
