@@ -475,7 +475,7 @@ class UserController extends AbstractController
         //get all anecdotes informations
         $allAnecdotes = $anecdoteRepository->findAll();
         //count all anecdotes in database
-        $anecdotesIndex = count($allAnecdotes);
+        $anecdotesIndex = count($allAnecdotes)- 1;
         //random in count index
         $randomIndex = rand(1, $anecdotesIndex);
 
@@ -502,7 +502,7 @@ class UserController extends AbstractController
         //get all anecdotes informations
         $allAnecdotes = $anecdoteRepository->findAll();
         //count all anecdotes in database
-        $anecdotesIndex = count($allAnecdotes);
+        $anecdotesIndex = count($allAnecdotes)- 1;
         //random in count index
         $randomIndex = rand(1, $anecdotesIndex);
 
