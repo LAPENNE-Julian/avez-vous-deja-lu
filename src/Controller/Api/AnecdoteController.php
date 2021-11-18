@@ -280,7 +280,7 @@ class AnecdoteController extends AbstractController
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($nextAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
@@ -299,7 +299,7 @@ class AnecdoteController extends AbstractController
                 return $this->getNotFoundResponse();
             }
 
-        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_browse']);
+        return $this->json($previousAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**
