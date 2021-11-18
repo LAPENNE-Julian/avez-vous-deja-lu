@@ -472,17 +472,19 @@ class UserController extends AbstractController
             return $this->getNotFoundResponse();
         }
 
-        //get all anecdotes informations
-        $allAnecdotes = $anecdoteRepository->findAll();
-        //count all anecdotes in database
-        $anecdotesIndex = count($allAnecdotes)- 1;
-        //random in count index
-        $randomIndex = rand(1, $anecdotesIndex);
+        // //get all anecdotes informations
+        // $allAnecdotes = $anecdoteRepository->findAll();
+        // //count all anecdotes in database
+        // $anecdotesIndex = count($allAnecdotes)- 1;
+        // //random in count index
+        // $randomIndex = rand(1, $anecdotesIndex);
+        // //get an anecdote random
+        // $anecdote = $anecdoteRepository->find($randomIndex);
 
-        //get an anecdote random
-        $anecdote = $anecdoteRepository->find($randomIndex);
+        //get random anecdote
+        $randomAnecdote = $anecdoteRepository->randomAnecdote();
 
-        return $this->json($anecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
+        return $this->json($randomAnecdote, Response::HTTP_OK, [], ['groups' => 'api_anecdote_read']);
     }
 
     /**

@@ -65,4 +65,20 @@ class AnecdoteRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * return random anecdote 
+    * @return Anecdote Returns an Anecdote objects
+    */
+    public function randomAnecdote()
+    {
+        $dql = "SELECT * FROM `anecdote` WHERE id
+        ORDER BY rand() LIMIT 1";
+        ;
+        $query = $this->getEntityManager()->createQuery($dql);
+
+        $result = $query->execute();
+
+        return $result;
+    }
 }
