@@ -72,11 +72,13 @@ class AnecdoteRepository extends ServiceEntityRepository
     */
     public function randomAnecdote()
     {
-        $dql = "SELECT * FROM `anecdote` WHERE id
-        ORDER BY rand() LIMIT 1";
+        $dql = "SELECT a FROM App\Entity\Anecdote a WHERE a.id
+        ORDER BY rand()";
         ;
         $query = $this->getEntityManager()->createQuery($dql);
 
+        //limit to five results
+        $query->setMaxResults(1);
         $result = $query->execute();
 
         return $result;
